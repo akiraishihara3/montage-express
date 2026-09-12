@@ -76,10 +76,10 @@
       <div class="heroTopShade"></div>
       <div class="heroReadShade"></div>
 
-      <div class="melting" id="melting">
-        <p class="scene__kicker">2026 THEME</p>
-        <h2>MELTING<br>POT</h2>
-        <p>異なる価値が混ざり合う場所。</p>
+      <div class="themeOverlay" id="themeOverlay">
+        <p class="scene__kicker" data-bind="heroThemeKicker">2027 THEME</p>
+        <h2 data-bind="themeNameDisplay" data-multiline="true">Micro<br>Values</h2>
+        <p data-bind="themeTagline">限られたものをどう組み合わせ、どう活かし、新しい価値へと変えていくのか。</p>
       </div>
 
       <div class="heroProgress" aria-hidden="true">
@@ -89,7 +89,23 @@
   </section>
 
   <section class="intro">
-    <p>One exhibition. <span>Different ideas, products and people.</span><br>ここから、次のライフスタイルへ。</p>
+    <div class="intro__inner">
+      <p>One exhibition. <span>Different ideas, products and people.</span><br>ここから、次のライフスタイルへ。</p>
+      <div class="eventMeta">
+        <div class="eventMeta__item">
+          <small>SEASON</small>
+          <strong data-bind="seasonLabel">37th</strong>
+        </div>
+        <div class="eventMeta__item">
+          <small>DATE</small>
+          <strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong>
+        </div>
+        <div class="eventMeta__item">
+          <small>VENUE</small>
+          <strong data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</strong>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="portal portal--exhibit" id="exhibit">
@@ -117,7 +133,21 @@
         <span class="portal__jp">来場する</span>
       </div>
       <div class="portal__bottom textReveal">
-        <p>最新のプロダクトと、そこから生まれる発見を会場で。日程・会場・出展ブランドなどの情報はこちら。</p>
+        <p>会場で最新のプロダクトと出会う。会期・会場・アクセス情報をシンプルに把握できる設計です。</p>
+        <div class="visitFacts">
+          <div>
+            <small>DATE</small>
+            <strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong>
+          </div>
+          <div>
+            <small>VENUE</small>
+            <strong data-bind="venueNameShort">Hamamatsucho-Kan 4F / Tokyo</strong>
+          </div>
+          <div>
+            <small>ADDRESS</small>
+            <strong data-bind="venueAddress">〒105-7501 東京都港区海岸1-7-1</strong>
+          </div>
+        </div>
         <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">開催情報を見る <span class="arrow">↗</span></a>
       </div>
     </div>
@@ -144,15 +174,29 @@
   </section>
 
   <section class="concept" id="concept">
-    <div class="concept__top">
+    <div class="concept__head">
       <small>THEME / CONCEPT</small>
-      <p>テクノロジー、環境意識、多様性。異なる価値観が混ざり合う時代に、MONTAGEは新しいライフスタイルから生まれるプロダクトと可能性を提示します。</p>
+      <p data-bind="conceptLead">昨今、限られた資源、資産、時間、繋がりや機会が改めて明確化されてきました。</p>
     </div>
-    <h2>MELTING<br>POT</h2>
-    <div class="concept__foot">
-      <p>異なる価値観やジャンルが混ざり合い、次のライフスタイルが生まれる。</p>
-      <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">CONCEPTを詳しく見る <span class="arrow">↗</span></a>
+    <div class="concept__body">
+      <div class="concept__copy">
+        <h2 data-bind="conceptTitle" data-multiline="true">Micro<br>Values</h2>
+        <p data-bind="conceptBody">高価なものを所有することではなく、満足度を高めるものを選ぶことを、新しい豊かさとして提案します。</p>
+        <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener"><span data-bind="conceptCtaLabel">CONCEPTを詳しく見る</span> <span class="arrow">↗</span></a>
+      </div>
+      <div class="concept__visualWrap">
+        <img class="concept__visual" id="themeVisual" src="assets/micro-values-header.webp" alt="Micro Values artwork">
+      </div>
     </div>
+  </section>
+
+  <section class="scheduleSection" id="schedule">
+    <div class="scheduleSection__head">
+      <small>EVENT SCHEDULE</small>
+      <h2><span data-bind="seasonLabel">37th</span> Exhibition</h2>
+      <p data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</p>
+    </div>
+    <div class="scheduleGrid" id="scheduleGrid"></div>
   </section>
 
   <section class="sustain" id="sustainability">
@@ -170,7 +214,7 @@
   <section class="contact" id="contact">
     <h2 class="contact__title">LET’S<br>CONNECT.</h2>
     <div class="contact__mid">
-      <p>出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。</p>
+      <p data-bind="contactLead">出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。</p>
       <div class="contact__links">
         <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>お問い合わせ</span><span>↗</span></a>
         <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>来場登録</span><span>↗</span></a>
@@ -185,6 +229,7 @@
   </section>
 </main>
 
+<script src="site-data.js"></script>
 <script src="script.js" defer></script>
 </body>
 </html>
