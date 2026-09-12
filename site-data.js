@@ -2,7 +2,7 @@ window.SITE_DATA = {
   seasonLabel: '37th',
   themeName: 'Micro Values',
   themeNameDisplay: 'Micro\nValues',
-  themeTagline: '限られたものをどう組み合わせ、どう活かし、新しい価値へと変えていくのか。',
+  themeTagline: '小さな価値の積み重ねが、新しい豊かさをつくる。',
   eventDateLabel: '2027.02.24 WED - 02.26 FRI',
   eventDateShort: 'FEB 24—26, 2027',
   venueName: 'Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F',
