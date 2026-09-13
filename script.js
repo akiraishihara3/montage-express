@@ -19,6 +19,15 @@
     themeVisual.alt = `${data.themeName || 'Theme'} artwork`;
   }
 
+  const heroPrimaryImage = document.getElementById('heroPrimaryImage');
+  if (heroPrimaryImage && data.heroPrimaryImage) {
+    heroPrimaryImage.src = data.heroPrimaryImage;
+    heroPrimaryImage.alt = `${data.themeName || 'Theme'} key visual`;
+    if (data.heroPrimaryImagePosition) {
+      heroPrimaryImage.style.objectPosition = data.heroPrimaryImagePosition;
+    }
+  }
+
   const scheduleGrid = document.getElementById('scheduleGrid');
   if (scheduleGrid && Array.isArray(data.schedule)) {
     scheduleGrid.innerHTML = data.schedule.map(item => `
