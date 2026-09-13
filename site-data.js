@@ -15,7 +15,9 @@ window.SITE_DATA = {
   conceptCtaLabel: 'CONCEPTを詳しく見る',
   contactLead: '出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。',
   heroPrimaryImage: 'assets/micro-values-header.webp',
-  heroPrimaryImagePosition: 'center center',
+  heroPrimaryImagePosition: 'center top',
+  heroPrimaryImageFit: 'cover',
+  heroPrimaryImageStatic: true,
   themeVisual: 'assets/micro-values-header.webp',
   schedule: [
     { date: '2.24 WED', time: '10:00 A.M - 7:00 P.M' },
