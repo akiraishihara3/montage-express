@@ -136,13 +136,41 @@ window.SITE_DATA = {
   ],
 
   partners: [
-    { name: 'GMO TECH' },
-    { name: 'KENZAI NAVI', meta: '建材探すなら' },
-    { name: 'TINY STAND' },
-    { name: 'リフォーム産業新聞' },
-    { name: 'howdi', meta: 'Exhibition Operation Tool', url: 'https://howdi-exhibition.com/' },
-    { name: 'MONTAGE Instagram', meta: 'FOLLOW / SOCIAL', url: 'https://www.instagram.com/montage_exhibition/' },
-    { name: 'GREEN POWER', meta: 'SUSTAINABILITY' }
+    {
+      name: 'MONTAGE Instagram',
+      url: 'https://www.instagram.com/montage_exhibition/',
+      spriteIndex: 0
+    },
+    {
+      name: 'GMO TECH',
+      url: 'https://gmotech.jp/',
+      spriteIndex: 1
+    },
+    {
+      name: 'KENZAI NAVI',
+      url: 'https://www.kenzai-navi.com/',
+      spriteIndex: 2
+    },
+    {
+      name: 'TINY STAND',
+      url: 'https://publicware.jp/item/tiny-stand/',
+      spriteIndex: 3
+    },
+    {
+      name: 'howdi Exhibition Operation Tool',
+      url: 'https://howdi-exhibition.com/',
+      spriteIndex: 4
+    },
+    {
+      name: 'GREEN POWER',
+      url: 'https://www.natural-e.co.jp/products/green-electric-certificate/green-electric-model/',
+      spriteIndex: 5
+    },
+    {
+      name: 'リフォーム産業新聞',
+      url: 'https://www.reform-online.jp/',
+      spriteIndex: 6
+    }
   ],
 
   galleryImages: [
