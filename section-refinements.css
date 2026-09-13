@@ -145,6 +145,54 @@
 .scrollFadeLeft--delay-2{transition-delay:.16s}
 .scrollFadeLeft--delay-3{transition-delay:.24s}
 
+/* HERO — do not fade/blur the text together with the image. */
+.heroScroll .scene{
+  opacity:1 !important;
+  filter:none !important;
+  transform:none !important;
+}
+
+.heroScroll .scene__image{
+  opacity:0;
+  filter:blur(5px);
+  will-change:opacity,filter,transform;
+}
+
+.heroScroll .scene:first-child .scene__image{
+  opacity:1;
+  filter:none;
+}
+
+.heroScroll .scene__copy{
+  opacity:var(--hero-copy-opacity,0) !important;
+  transform:translate3d(var(--hero-copy-x,0px),0,0) !important;
+  color:#fff !important;
+  text-shadow:0 2px 18px rgba(0,0,0,.38) !important;
+  will-change:opacity,transform;
+}
+
+.heroScroll .scene:first-child .scene__copy{
+  --hero-copy-opacity:1;
+}
+
+.heroScroll .scene__title,
+.heroScroll .scene__kicker,
+.heroScroll .scene__jp,
+.heroScroll .scene__meta{
+  color:#fff !important;
+  opacity:1;
+}
+
+.heroReadShade{
+  background:
+    radial-gradient(ellipse at 0% 100%,
+      rgba(0,0,0,.72) 0%,
+      rgba(0,0,0,.48) 28%,
+      rgba(0,0,0,.18) 52%,
+      rgba(0,0,0,.04) 67%,
+      transparent 76%) !important;
+}
+
 @media(max-width:1180px){
   .scheduleSection__head h2{
     font-size:clamp(68px,8.4vw,100px) !important;
@@ -232,6 +280,20 @@
   .scrollFadeLeft{
     transform:translate3d(-34px,0,0);
   }
+
+  .heroReadShade{
+    background:linear-gradient(
+      0deg,
+      rgba(0,0,0,.72) 0%,
+      rgba(0,0,0,.42) 30%,
+      rgba(0,0,0,.12) 56%,
+      transparent 76%
+    ) !important;
+  }
+
+  .heroScroll .scene__copy{
+    text-shadow:0 2px 16px rgba(0,0,0,.44) !important;
+  }
 }
 
 @media(max-width:420px){
@@ -254,5 +316,9 @@
     opacity:1 !important;
     transform:none !important;
     transition:none !important;
+  }
+
+  .heroScroll .scene__copy{
+    transform:none !important;
   }
 }
