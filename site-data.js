@@ -14,7 +14,9 @@ window.SITE_DATA = {
   conceptBody: '高価なものを買うという選択肢から豊かになる、満足度があがるものへ。人に見せつけるものではなく、自分にとって特別なものを選ぶ時代となりました。「高価なものを所有すること＝豊かさ」から、「満足度を高めるものを選ぶこと＝豊かさ」。そのようなモノを通して新しい豊かさをMONTAGEは提案してまいります。',
   conceptCtaLabel: 'CONCEPTを詳しく見る',
   contactLead: '出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。',
-  themeVisual: 'assets/micro-values-header.svg',
+  heroPrimaryImage: 'assets/micro-values-header.webp',
+  heroPrimaryImagePosition: 'center center',
+  themeVisual: 'assets/micro-values-header.webp',
   schedule: [
     { date: '2.24 WED', time: '10:00 A.M - 7:00 P.M' },
     { date: '2.25 THU', time: '10:00 A.M - 7:00 P.M' },
