@@ -183,6 +183,21 @@
   opacity:1;
 }
 
+/* Dedicated Micro Values visual shown only after PEOPLE. */
+.heroThemeImage{
+  position:absolute;
+  z-index:18;
+  inset:-3%;
+  width:106%;
+  height:106%;
+  object-fit:cover;
+  object-position:center center;
+  opacity:0;
+  pointer-events:none;
+  will-change:opacity,transform;
+  transform:scale(1.035);
+}
+
 .heroReadShade{
   background:
     radial-gradient(ellipse at 0% 100%,
@@ -281,6 +296,12 @@
     transform:translate3d(-34px,0,0);
   }
 
+  .heroThemeImage{
+    inset:-5%;
+    width:110%;
+    height:110%;
+  }
+
   .heroReadShade{
     background:linear-gradient(
       0deg,
@@ -319,6 +340,10 @@
   }
 
   .heroScroll .scene__copy{
+    transform:none !important;
+  }
+
+  .heroThemeImage{
     transform:none !important;
   }
 }
