@@ -13,6 +13,49 @@
     }
   });
 
+  const headerInner = document.querySelector('.header__in');
+  const menuButton = document.getElementById('menuBtn');
+  if (headerInner && menuButton && data.primaryActionLabel && data.primaryActionUrl) {
+    const headerCta = document.createElement('a');
+    headerCta.className = 'headerCta';
+    headerCta.href = data.primaryActionUrl;
+    headerCta.textContent = data.primaryActionLabel;
+    if (/^https?:\/\//.test(data.primaryActionUrl)) {
+      headerCta.target = '_blank';
+      headerCta.rel = 'noopener';
+    }
+    headerInner.insertBefore(headerCta, menuButton);
+  }
+
+  const introInner = document.querySelector('.intro__inner');
+  if (introInner && Array.isArray(data.quickAccess) && data.quickAccess.length) {
+    const quickAccess = document.createElement('div');
+    quickAccess.className = 'quickAccess';
+
+    const links = data.quickAccess.map((item, index) => {
+      const external = /^https?:\/\//.test(item.url || '');
+      return `
+        <a class="quickAccess__item" href="${item.url || '#'}"${external ? ' target="_blank" rel="noopener"' : ''}>
+          <span class="quickAccess__num">${String(index + 1).padStart(2, '0')}</span>
+          <span class="quickAccess__label">
+            <strong>${item.label || ''}</strong>
+            <small>${item.jp || ''}<br>${item.description || ''}</small>
+          </span>
+          <span class="quickAccess__arrow" aria-hidden="true">↗</span>
+        </a>
+      `;
+    }).join('');
+
+    quickAccess.innerHTML = `
+      <div class="quickAccess__head">
+        <small>QUICK ACCESS / ${data.quickAccessLead || '目的からすぐに探す'}</small>
+        <span class="quickAccess__status">${data.primaryActionStatus || ''}</span>
+      </div>
+      <div class="quickAccess__list">${links}</div>
+    `;
+    introInner.appendChild(quickAccess);
+  }
+
   const themeVisual = document.getElementById('themeVisual');
   if (themeVisual && data.themeVisual) {
     themeVisual.src = data.themeVisual;
