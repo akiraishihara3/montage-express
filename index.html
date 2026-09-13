@@ -9,233 +9,41 @@
 <link rel="stylesheet" href="exhibit-fullbleed.css">
 <link rel="stylesheet" href="schedule-counter.css?v=20260913-2">
 <link rel="stylesheet" href="partners-marquee.css?v=20260913-1">
+<link rel="stylesheet" href="section-refinements.css?v=20260913-1">
 </head>
 <body>
 <header class="header" id="header">
   <div class="header__in">
-    <a href="#top" class="logo" aria-label="MONTAGE home">
-      <img src="https://montage-express.jp/contents/wp-content/themes/montage/images/logo.png" alt="MONTAGE">
-    </a>
-    <nav class="nav" aria-label="Primary navigation">
-      <a href="#exhibit">EXHIBIT</a>
-      <a href="#visit">VISIT</a>
-      <a href="#online">ONLINE</a>
-      <a href="#concept">CONCEPT</a>
-      <a href="#contact">CONTACT</a>
-    </nav>
+    <a href="#top" class="logo" aria-label="MONTAGE home"><img src="https://montage-express.jp/contents/wp-content/themes/montage/images/logo.png" alt="MONTAGE"></a>
+    <nav class="nav" aria-label="Primary navigation"><a href="#exhibit">EXHIBIT</a><a href="#visit">VISIT</a><a href="#online">ONLINE</a><a href="#concept">CONCEPT</a><a href="#contact">CONTACT</a></nav>
     <button class="menuBtn" type="button" id="menuBtn" aria-expanded="false">MENU</button>
   </div>
 </header>
-
-<div class="mobileSheet" id="mobileSheet">
-  <a href="#exhibit">EXHIBIT</a>
-  <a href="#visit">VISIT</a>
-  <a href="#online">ONLINE</a>
-  <a href="#concept">CONCEPT</a>
-  <a href="#contact">CONTACT</a>
-  <small>MONTAGE / JOINT EXHIBITION / TOKYO</small>
-</div>
-
+<div class="mobileSheet" id="mobileSheet"><a href="#exhibit">EXHIBIT</a><a href="#visit">VISIT</a><a href="#online">ONLINE</a><a href="#concept">CONCEPT</a><a href="#contact">CONTACT</a><small>MONTAGE / JOINT EXHIBITION / TOKYO</small></div>
 <main id="top">
-  <section class="heroScroll" id="heroScroll" aria-label="MONTAGE story">
-    <div class="heroSticky">
-      <div class="scene" data-scene="0">
-        <img class="scene__image" id="heroPrimaryImage" src="assets/micro-values-header.webp" alt="Micro Values key visual">
-        <div class="scene__copy">
-          <p class="scene__kicker">MONTAGE / TOKYO</p>
-          <h1 class="scene__title">Value lives<br>in details.</h1>
-          <p class="scene__jp">価値は、細部に宿る。</p>
-          <div class="scene__meta"><div class="scrollLine"></div>SCROLL</div>
-        </div>
-      </div>
-
-      <div class="scene" data-scene="1">
-        <img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/10.png" alt="">
-        <div class="scene__copy">
-          <p class="scene__kicker">01 / PLACE</p>
-          <h2 class="scene__title">Ideas meet<br>here.</h2>
-          <p class="scene__jp">新しい発想が、ここで出会う。</p>
-        </div>
-      </div>
-
-      <div class="scene" data-scene="2">
-        <img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/12.png" alt="">
-        <div class="scene__copy">
-          <p class="scene__kicker">02 / DETAIL</p>
-          <h2 class="scene__title">Details shape<br>culture.</h2>
-          <p class="scene__jp">ひとつのディテールが、次の文化をつくる。</p>
-        </div>
-      </div>
-
-      <div class="scene" data-scene="3">
-        <img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/6.png" alt="">
-        <div class="scene__copy">
-          <p class="scene__kicker">03 / PEOPLE</p>
-          <h2 class="scene__title">People make<br>it move.</h2>
-          <p class="scene__jp">人が交わることで、アイデアは動き出す。</p>
-        </div>
-      </div>
-
-      <div class="heroTopShade"></div>
-      <div class="heroReadShade"></div>
-
-      <div class="themeOverlay" id="themeOverlay">
-        <p class="scene__kicker" data-bind="heroThemeKicker">2027 THEME</p>
-        <h2 data-bind="themeNameDisplay" data-multiline="true">Micro<br>Values</h2>
-        <p data-bind="themeTagline">小さな価値の積み重ねが、新しい豊かさをつくる。</p>
-      </div>
-
-      <div class="heroProgress" aria-hidden="true">
-        <span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span>
-      </div>
-    </div>
-  </section>
-
-  <section class="intro">
-    <div class="intro__inner">
-      <p>One exhibition. <span>Different ideas, products and people.</span><br>ここから、次のライフスタイルへ。</p>
-      <div class="eventMeta">
-        <div class="eventMeta__item">
-          <small>SEASON</small>
-          <strong data-bind="seasonLabel">37th</strong>
-        </div>
-        <div class="eventMeta__item">
-          <small>DATE</small>
-          <strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong>
-        </div>
-        <div class="eventMeta__item">
-          <small>VENUE</small>
-          <strong data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</strong>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="portal portal--exhibit" id="exhibit">
-    <div class="portal__copy">
-      <div>
-        <div class="portal__eyebrow">01 / FOR EXHIBITORS</div>
-        <h2 class="portal__title">EXHIBIT</h2>
-        <span class="portal__jp">出展する</span>
-      </div>
-      <div class="portal__bottom textReveal">
-        <p>カテゴリーの垣根を越えた、新しい展示の場へ。開催概要・募集締切・オーディションについてご案内します。</p>
-        <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">出展情報を見る <span class="arrow">↗</span></a>
-      </div>
-    </div>
-    <div class="portal__media">
-      <img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/7.png" alt="MONTAGE exhibition booth">
-    </div>
-  </section>
-
-  <section class="portal portal--visit" id="visit">
-    <div class="portal__copy">
-      <div>
-        <div class="portal__eyebrow">02 / FOR VISITORS</div>
-        <h2 class="portal__title">VISIT</h2>
-        <span class="portal__jp">来場する</span>
-      </div>
-      <div class="portal__bottom textReveal">
-        <p>会場で最新のプロダクトと出会う。会期・会場・アクセス情報をシンプルに把握できる設計です。</p>
-        <div class="visitFacts">
-          <div>
-            <small>DATE</small>
-            <strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong>
-          </div>
-          <div>
-            <small>VENUE</small>
-            <strong data-bind="venueNameShort">Hamamatsucho-Kan 4F / Tokyo</strong>
-          </div>
-          <div>
-            <small>ADDRESS</small>
-            <strong data-bind="venueAddress">〒105-7501 東京都港区海岸1-7-1</strong>
-          </div>
-        </div>
-        <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">開催情報を見る <span class="arrow">↗</span></a>
-      </div>
-    </div>
-    <div class="portal__media">
-      <img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/10.png" alt="MONTAGE exhibition venue">
-    </div>
-  </section>
-
-  <section class="portal portal--online" id="online">
-    <div class="portal__copy">
-      <div>
-        <div class="portal__eyebrow">03 / DIGITAL EXHIBITION</div>
-        <h2 class="portal__title">ONLINE</h2>
-        <span class="portal__jp">オンライン展示会</span>
-      </div>
-      <div class="portal__bottom textReveal">
-        <p>会場で展示される最新プロダクトをオンラインでも。ブランドへの問い合わせやデジタルカタログにもアクセスできます。</p>
-        <a class="cta" href="https://howdi-exhibition.com/" target="_blank" rel="noopener">ONLINEへ <span class="arrow">↗</span></a>
-      </div>
-    </div>
-    <div class="portal__media">
-      <img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/8.png" alt="MONTAGE product display">
-    </div>
-  </section>
-
-  <section class="concept" id="concept">
-    <div class="concept__head">
-      <small>THEME / CONCEPT</small>
-      <p data-bind="conceptLead">昨今、限られた資源、資産、時間、繋がりや機会が改めて明確化されてきました。</p>
-    </div>
-    <div class="concept__body">
-      <div class="concept__copy">
-        <h2 data-bind="conceptTitle" data-multiline="true">Micro<br>Values</h2>
-        <p data-bind="conceptBody">高価なものを所有することではなく、満足度を高めるものを選ぶことを、新しい豊かさとして提案します。</p>
-        <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener"><span data-bind="conceptCtaLabel">CONCEPTを詳しく見る</span> <span class="arrow">↗</span></a>
-      </div>
-      <div class="concept__visualWrap">
-        <img class="concept__visual" id="themeVisual" src="assets/micro-values-header.webp" alt="Micro Values artwork">
-      </div>
-    </div>
-  </section>
-
-  <section class="scheduleSection" id="schedule">
-    <div class="scheduleSection__head">
-      <small>EVENT SCHEDULE</small>
-      <h2><span data-bind="seasonLabel">37th</span> Exhibition</h2>
-      <p data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</p>
-    </div>
-    <div class="scheduleGrid" id="scheduleGrid"></div>
-  </section>
-
-  <section class="sustain" id="sustainability">
-    <img src="https://montage-express.jp/contents/wp-content/uploads/2026/02/MONTAGE-Gallery-22.png" alt="">
-    <div class="sustain__copy">
-      <small>SUSTAINABILITY</small>
-      <div>
-        <h2>Designing<br>better<br>exhibitions.</h2>
-        <p>展示会を、より持続可能なものへ。環境への影響を抑える取り組みと、そのプロセスをわかりやすく伝えます。</p>
-        <a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">取り組みを見る <span class="arrow">↗</span></a>
-      </div>
-    </div>
-  </section>
-
-  <section class="contact" id="contact">
-    <h2 class="contact__title">LET’S<br>CONNECT.</h2>
-    <div class="contact__mid">
-      <p data-bind="contactLead">出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。</p>
-      <div class="contact__links">
-        <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>お問い合わせ</span><span>↗</span></a>
-        <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>来場登録</span><span>↗</span></a>
-        <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>来場規約</span><span>↗</span></a>
-        <a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>Privacy Policy</span><span>↗</span></a>
-      </div>
-    </div>
-    <div class="footer">
-      <span>© MONTAGE</span>
-      <span>JOINT EXHIBITION / TOKYO</span>
-    </div>
-  </section>
+<section class="heroScroll" id="heroScroll" aria-label="MONTAGE story"><div class="heroSticky">
+<div class="scene" data-scene="0"><img class="scene__image" id="heroPrimaryImage" src="assets/micro-values-header.webp" alt="Micro Values key visual"><div class="scene__copy"><p class="scene__kicker">MONTAGE / TOKYO</p><h1 class="scene__title">Value lives<br>in details.</h1><p class="scene__jp">価値は、細部に宿る。</p><div class="scene__meta"><div class="scrollLine"></div>SCROLL</div></div></div>
+<div class="scene" data-scene="1"><img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/10.png" alt=""><div class="scene__copy"><p class="scene__kicker">01 / PLACE</p><h2 class="scene__title">Ideas meet<br>here.</h2><p class="scene__jp">新しい発想が、ここで出会う。</p></div></div>
+<div class="scene" data-scene="2"><img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/12.png" alt=""><div class="scene__copy"><p class="scene__kicker">02 / DETAIL</p><h2 class="scene__title">Details shape<br>culture.</h2><p class="scene__jp">ひとつのディテールが、次の文化をつくる。</p></div></div>
+<div class="scene" data-scene="3"><img class="scene__image" src="https://montage-express.jp/contents/wp-content/uploads/2026/09/6.png" alt=""><div class="scene__copy"><p class="scene__kicker">03 / PEOPLE</p><h2 class="scene__title">People make<br>it move.</h2><p class="scene__jp">人が交わることで、アイデアは動き出す。</p></div></div>
+<div class="heroTopShade"></div><div class="heroReadShade"></div>
+<div class="themeOverlay" id="themeOverlay"><p class="scene__kicker" data-bind="heroThemeKicker">2027 THEME</p><h2 data-bind="themeNameDisplay" data-multiline="true">Micro<br>Values</h2><p data-bind="themeTagline">小さな価値の積み重ねが、新しい豊かさをつくる。</p></div>
+<div class="heroProgress" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+</div></section>
+<section class="intro"><div class="intro__inner"><p>One exhibition. <span>Different ideas, products and people.</span><br>ここから、次のライフスタイルへ。</p><div class="eventMeta"><div class="eventMeta__item"><small>SEASON</small><strong data-bind="seasonLabel">37th</strong></div><div class="eventMeta__item"><small>DATE</small><strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong></div><div class="eventMeta__item"><small>VENUE</small><strong data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</strong></div></div></div></section>
+<section class="portal portal--exhibit" id="exhibit"><div class="portal__copy"><div><div class="portal__eyebrow">01 / FOR EXHIBITORS</div><h2 class="portal__title">EXHIBIT</h2><span class="portal__jp">出展する</span></div><div class="portal__bottom textReveal"><p>カテゴリーの垣根を越えた、新しい展示の場へ。開催概要・募集締切・オーディションについてご案内します。</p><a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">出展情報を見る <span class="arrow">↗</span></a></div></div><div class="portal__media"><img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/7.png" alt="MONTAGE exhibition booth"></div></section>
+<section class="portal portal--visit" id="visit"><div class="portal__copy"><div><div class="portal__eyebrow">02 / FOR VISITORS</div><h2 class="portal__title">VISIT</h2><span class="portal__jp">来場する</span></div><div class="portal__bottom textReveal"><p>会場で最新のプロダクトと出会う。会期・会場・アクセス情報をシンプルに把握できる設計です。</p><div class="visitFacts"><div><small>DATE</small><strong data-bind="eventDateLabel">2027.02.24 WED - 02.26 FRI</strong></div><div><small>VENUE</small><strong data-bind="venueNameShort">Hamamatsucho-Kan 4F / Tokyo</strong></div><div><small>ADDRESS</small><strong data-bind="venueAddress">〒105-7501 東京都港区海岸1-7-1</strong></div></div><a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">開催情報を見る <span class="arrow">↗</span></a></div></div><div class="portal__media"><img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/10.png" alt="MONTAGE exhibition venue"></div></section>
+<section class="portal portal--online" id="online"><div class="portal__copy"><div><div class="portal__eyebrow">03 / DIGITAL EXHIBITION</div><h2 class="portal__title">ONLINE</h2><span class="portal__jp">オンライン展示会</span></div><div class="portal__bottom textReveal"><p>会場で展示される最新プロダクトをオンラインでも。ブランドへの問い合わせやデジタルカタログにもアクセスできます。</p><a class="cta" href="https://howdi-exhibition.com/" target="_blank" rel="noopener">ONLINEへ <span class="arrow">↗</span></a></div></div><div class="portal__media"><img src="https://montage-express.jp/contents/wp-content/uploads/2026/09/8.png" alt="MONTAGE product display"></div></section>
+<section class="concept" id="concept"><div class="concept__head"><small>THEME / CONCEPT</small><p data-bind="conceptLead">昨今、限られた資源、資産、時間、繋がりや機会が改めて明確化されてきました。</p></div><div class="concept__body"><div class="concept__copy"><h2 data-bind="conceptTitle" data-multiline="true">Micro<br>Values</h2><p data-bind="conceptBody">高価なものを所有することではなく、満足度を高めるものを選ぶことを、新しい豊かさとして提案します。</p><a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener"><span data-bind="conceptCtaLabel">CONCEPTを詳しく見る</span> <span class="arrow">↗</span></a></div><div class="concept__visualWrap"><img class="concept__visual" id="themeVisual" src="assets/micro-values-header.webp" alt="Micro Values artwork"></div></div></section>
+<section class="scheduleSection" id="schedule"><div class="scheduleSection__head"><small>EVENT SCHEDULE</small><h2><span data-bind="seasonLabel">37th</span> Exhibition</h2><p data-bind="venueName">Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F</p></div><div class="scheduleGrid" id="scheduleGrid"></div></section>
+<section class="sustain" id="sustainability"><img src="https://montage-express.jp/contents/wp-content/uploads/2026/02/MONTAGE-Gallery-22.png" alt=""><div class="sustain__copy"><small>SUSTAINABILITY</small><div><h2>Designing<br>better<br>exhibitions.</h2><p>展示会を、より持続可能なものへ。環境への影響を抑える取り組みと、そのプロセスをわかりやすく伝えます。</p><a class="cta" href="https://montage-express.jp/" target="_blank" rel="noopener">取り組みを見る <span class="arrow">↗</span></a></div></div></section>
+<section class="contact" id="contact"><h2 class="contact__title">LET’S<br>CONNECT.</h2><div class="contact__mid"><p data-bind="contactLead">出展・来場・取材など、MONTAGEに関するお問い合わせはこちらから。</p><div class="contact__links"><a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>お問い合わせ</span><span>↗</span></a><a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>来場登録</span><span>↗</span></a><a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>来場規約</span><span>↗</span></a><a href="https://montage-express.jp/" target="_blank" rel="noopener"><span>Privacy Policy</span><span>↗</span></a></div></div><div class="footer"><span>© MONTAGE</span><span>JOINT EXHIBITION / TOKYO</span></div></section>
 </main>
-
 <script src="partner-sprite-data.js?v=20260913-1"></script>
 <script src="site-data.js?v=20260913-5"></script>
 <script src="script.js?v=20260913-6" defer></script>
 <script src="schedule-counter.js?v=20260913-2" defer></script>
 <script src="partners-marquee.js?v=20260913-1" defer></script>
+<script src="section-refinements.js?v=20260913-1" defer></script>
 </body>
 </html>
