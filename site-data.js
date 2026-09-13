@@ -189,14 +189,22 @@ window.SITE_DATA = {
   ]
 };
 
-/* Load the completeness layer after the base page is ready. */
+/* Load dynamic completion layers after the base page is ready. */
 (() => {
   const load = () => {
-    if (document.querySelector('script[data-complete-sections]')) return;
-    const script = document.createElement('script');
-    script.src = 'complete-sections.js?v=20260913-1';
-    script.dataset.completeSections = 'true';
-    document.body.appendChild(script);
+    if (!document.querySelector('script[data-complete-sections]')) {
+      const complete = document.createElement('script');
+      complete.src = 'complete-sections.js?v=20260913-1';
+      complete.dataset.completeSections = 'true';
+      document.body.appendChild(complete);
+    }
+
+    if (!document.querySelector('script[data-access-map]')) {
+      const map = document.createElement('script');
+      map.src = 'access-map-v2.js?v=20260913-1';
+      map.dataset.accessMap = 'true';
+      document.body.appendChild(map);
+    }
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once:true });
   else load();
