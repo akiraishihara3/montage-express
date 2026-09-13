@@ -1,0 +1,258 @@
+/* Final section refinements: concept alignment, responsive schedule, boxless partner logos, left-in text motion. */
+
+/* THEME / CONCEPT — keep every piece of copy left aligned and anchored to the left. */
+.concept,
+.concept__head,
+.concept__head small,
+.concept__head p,
+.concept__body,
+.concept__copy,
+.concept__copy h2,
+.concept__copy p{
+  text-align:left !important;
+}
+
+.concept__head{
+  grid-template-columns:1fr !important;
+  gap:0 !important;
+  justify-items:start !important;
+}
+
+.concept__head p{
+  justify-self:start !important;
+  margin-top:28px !important;
+  max-width:760px !important;
+}
+
+.concept__copy{
+  margin-left:0 !important;
+  margin-right:auto !important;
+}
+
+/* EVENT SCHEDULE — never allow the large counter typography to overflow. */
+.scheduleSection{
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+}
+
+.scheduleSection__head{
+  min-width:0;
+}
+
+.scheduleSection__head > *{
+  min-width:0;
+  max-width:100%;
+}
+
+.scheduleSection__head h2{
+  max-width:100%;
+  overflow-wrap:normal;
+  word-break:normal;
+  text-wrap:balance;
+}
+
+.scheduleSection__head p{
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+
+.scheduleGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  width:100%;
+  max-width:100%;
+}
+
+.scheduleCard{
+  min-width:0;
+  width:100%;
+  overflow:hidden;
+}
+
+.scheduleCard strong{
+  min-width:0;
+  max-width:100%;
+  flex-wrap:wrap;
+  column-gap:.11em;
+  row-gap:.02em;
+}
+
+.scheduleCounterValue,
+.scheduleCounterWeekday,
+.scheduleCounterStatic{
+  max-width:100%;
+}
+
+/* Partners — supplied logos only. No cards, borders, white boxes or arrow badges. */
+.partnersSection.partnersSection--marquee{
+  background:#f5f5f2;
+}
+
+.partnerMarquee__viewport{
+  padding:6px 0 12px !important;
+}
+
+.partnerMarquee__item{
+  width:clamp(220px,18vw,300px) !important;
+  height:126px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:hidden;
+  transition:opacity .25s ease,transform .25s ease !important;
+}
+
+.partnerMarquee__item::after{
+  display:none !important;
+  content:none !important;
+}
+
+.partnerMarquee__item:hover,
+.partnerMarquee__item:focus-visible{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+  transform:scale(1.035) !important;
+  opacity:.78;
+}
+
+.partnerMarquee__logo{
+  width:100% !important;
+  height:100% !important;
+  background-color:transparent !important;
+  background-repeat:no-repeat !important;
+  background-size:700% 100% !important;
+}
+
+/* Prose motion — fade in from the left when the text enters the viewport. */
+.scrollFadeLeft{
+  opacity:0;
+  transform:translate3d(-56px,0,0);
+  transition:
+    opacity .78s cubic-bezier(.2,.72,.25,1),
+    transform .95s cubic-bezier(.16,1,.3,1);
+  will-change:opacity,transform;
+}
+
+.scrollFadeLeft.is-in-view{
+  opacity:1;
+  transform:translate3d(0,0,0);
+}
+
+.scrollFadeLeft--delay-1{transition-delay:.08s}
+.scrollFadeLeft--delay-2{transition-delay:.16s}
+.scrollFadeLeft--delay-3{transition-delay:.24s}
+
+@media(max-width:1180px){
+  .scheduleSection__head h2{
+    font-size:clamp(68px,8.4vw,100px) !important;
+  }
+
+  .scheduleCard strong{
+    font-size:clamp(58px,6.4vw,80px) !important;
+  }
+}
+
+@media(max-width:1024px){
+  .scheduleGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .scheduleSection__head h2{
+    font-size:clamp(60px,10vw,88px) !important;
+  }
+
+  .scheduleCard strong{
+    font-size:clamp(54px,8.4vw,72px) !important;
+  }
+}
+
+@media(max-width:720px){
+  .concept__head p{
+    margin-top:24px !important;
+    max-width:100% !important;
+  }
+
+  .scheduleSection{
+    padding-left:22px !important;
+    padding-right:22px !important;
+  }
+
+  .scheduleSection__head{
+    display:block !important;
+    margin-bottom:28px !important;
+  }
+
+  .scheduleSection__head h2{
+    margin-top:22px !important;
+    font-size:clamp(48px,14.2vw,72px) !important;
+    line-height:.9 !important;
+    letter-spacing:-.05em !important;
+  }
+
+  .scheduleSection__head p{
+    margin-top:24px !important;
+    font-size:13px !important;
+    line-height:1.65 !important;
+  }
+
+  .scheduleGrid{
+    grid-template-columns:1fr !important;
+    gap:14px !important;
+  }
+
+  .scheduleCard{
+    min-height:190px !important;
+    padding:24px 20px !important;
+    border-radius:22px !important;
+  }
+
+  .scheduleCard strong{
+    font-size:clamp(46px,13vw,64px) !important;
+    line-height:.94 !important;
+    letter-spacing:-.04em !important;
+  }
+
+  .scheduleCounterWeekday{
+    min-width:0 !important;
+  }
+
+  .scheduleCard p{
+    font-size:13px !important;
+    overflow-wrap:anywhere;
+  }
+
+  .partnerMarquee__item{
+    width:210px !important;
+    height:100px !important;
+  }
+
+  .scrollFadeLeft{
+    transform:translate3d(-34px,0,0);
+  }
+}
+
+@media(max-width:420px){
+  .scheduleSection__head h2{
+    font-size:clamp(44px,13.8vw,58px) !important;
+  }
+
+  .scheduleCard strong{
+    font-size:clamp(42px,12.6vw,54px) !important;
+  }
+
+  .partnerMarquee__item{
+    width:190px !important;
+    height:92px !important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .scrollFadeLeft{
+    opacity:1 !important;
+    transform:none !important;
+    transition:none !important;
+  }
+}
