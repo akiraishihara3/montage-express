@@ -1,0 +1,56 @@
+/* Hero readability refinements: slightly looser display type and a subtle lower-only shade. */
+.scene__title{
+  line-height:.86;
+  letter-spacing:-.045em;
+}
+
+.themeOverlay h2{
+  line-height:.76;
+  letter-spacing:-.055em;
+}
+
+.scene__jp,
+.themeOverlay > p:not(.scene__kicker),
+.scene__meta{
+  color:rgba(255,255,255,.95);
+  text-shadow:0 2px 12px rgba(0,0,0,.24);
+}
+
+.heroSticky::after{
+  content:"";
+  position:absolute;
+  z-index:21;
+  left:0;
+  right:0;
+  bottom:0;
+  height:38%;
+  pointer-events:none;
+  background:
+    linear-gradient(0deg,
+      rgba(0,0,0,.30) 0%,
+      rgba(0,0,0,.16) 25%,
+      rgba(0,0,0,.06) 44%,
+      rgba(0,0,0,0) 70%);
+}
+
+@media (max-width:900px){
+  .scene__title{
+    line-height:.88;
+    letter-spacing:-.038em;
+  }
+
+  .themeOverlay h2{
+    line-height:.78;
+    letter-spacing:-.05em;
+  }
+
+  .heroSticky::after{
+    height:42%;
+    background:
+      linear-gradient(0deg,
+        rgba(0,0,0,.36) 0%,
+        rgba(0,0,0,.20) 28%,
+        rgba(0,0,0,.08) 48%,
+        rgba(0,0,0,0) 72%);
+  }
+}
