@@ -5,7 +5,7 @@
   min-height:100svh;
   overflow:hidden;
   padding:0;
-  background:#151515;
+  background:#151515 url("assets/micro-values-header.webp") center center / cover no-repeat;
   color:#fff;
   border-bottom:1px solid rgba(255,255,255,.12);
 }
@@ -29,29 +29,9 @@
       rgba(0,0,0,.12) 100%);
 }
 
+/* Existing right-column visual is no longer used in this treatment. */
 .concept__visualWrap{
-  position:absolute;
-  z-index:0;
-  inset:0;
-  display:block;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
-
-.concept__visual{
-  position:absolute;
-  inset:0;
-  display:block;
-  width:100%;
-  max-width:none;
-  height:100%;
-  object-fit:cover;
-  object-position:center center;
-  border:0;
-  border-radius:0;
-  background:none;
-  box-shadow:none;
+  display:none;
 }
 
 .concept__head{
@@ -135,6 +115,7 @@
   .concept{
     min-height:100svh;
     padding:0;
+    background-position:center center;
   }
 
   .concept::after{
@@ -145,10 +126,6 @@
         rgba(0,0,0,.16) 70%,
         rgba(0,0,0,.14) 100%),
       linear-gradient(90deg,rgba(0,0,0,.24),transparent 76%);
-  }
-
-  .concept__visual{
-    object-position:center center;
   }
 
   .concept__head{
