@@ -63,6 +63,19 @@
   const scenes = [...document.querySelectorAll('.scene')];
   const sceneImages = scenes.map(scene => scene.querySelector('.scene__image'));
   const sceneCopies = scenes.map(scene => scene.querySelector('.scene__copy'));
+  const heroSticky = hero?.querySelector('.heroSticky');
+  const themeOverlay = document.getElementById('themeOverlay');
+  const data = window.SITE_DATA || {};
+
+  let heroThemeImage = document.getElementById('heroThemeImage');
+  if (heroSticky && themeOverlay && !heroThemeImage) {
+    heroThemeImage = document.createElement('img');
+    heroThemeImage.id = 'heroThemeImage';
+    heroThemeImage.className = 'heroThemeImage';
+    heroThemeImage.src = data.themeVisual || 'assets/micro-values-header.webp';
+    heroThemeImage.alt = `${data.themeName || 'Micro Values'} artwork`;
+    themeOverlay.insertAdjacentElement('beforebegin', heroThemeImage);
+  }
 
   if (hero && scenes.length) {
     const clamp = (n,a=0,b=1) => Math.min(b, Math.max(a,n));
@@ -120,6 +133,14 @@
           copy.style.setProperty('--hero-copy-x', `${enterX + exitX}px`);
         }
       });
+
+      /* After PEOPLE, fade to the dedicated Micro Values artwork. */
+      if (heroThemeImage) {
+        const themeReveal = smooth(rangeProgress(p, .855, .935));
+        const themeZoom = 1.035 + themeReveal * .035;
+        heroThemeImage.style.opacity = themeReveal.toFixed(3);
+        heroThemeImage.style.transform = `scale(${themeZoom.toFixed(4)})`;
+      }
 
       heroTicking = false;
     };
