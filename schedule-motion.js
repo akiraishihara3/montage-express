@@ -55,7 +55,7 @@
     section.classList.add('is-in');
   }
 
-  if (reduceMotion || !('IntersectionObserver' in window)) {
+  if (reduceMotion) {
     setFinalValues();
     return;
   }
@@ -65,8 +65,8 @@
   function animateToken(token, index) {
     const target = Number(token.dataset.target || 0);
     const pad = Number(token.dataset.pad || 1);
-    const delay = 80 + index * 38;
-    const duration = 760 + Math.min(target * 12, 360);
+    const delay = 90 + index * 42;
+    const duration = 820 + Math.min(target * 13, 420);
     const startAt = performance.now() + delay;
 
     function frame(now) {
@@ -86,17 +86,31 @@
     requestAnimationFrame(frame);
   }
 
-  const observer = new IntersectionObserver(entries => {
-    const entry = entries[0];
-    if (!entry?.isIntersecting || played) return;
+  function startAnimation() {
+    if (played) return;
     played = true;
     section.classList.add('is-in');
     tokens.forEach(animateToken);
-    observer.disconnect();
-  }, {
-    threshold: 0.24,
-    rootMargin: '0px 0px -8% 0px'
-  });
+    removeEventListener('scroll', checkPosition);
+    removeEventListener('resize', checkPosition);
 
-  observer.observe(section);
+    // Safety net: always land on the intended values even when rAF is throttled.
+    setTimeout(setFinalValues, 2400);
+  }
+
+  function checkPosition() {
+    if (played) return;
+    const rect = section.getBoundingClientRect();
+    const triggerLine = innerHeight * 0.86;
+    const visibleEnough = rect.top <= triggerLine && rect.bottom >= innerHeight * 0.08;
+    if (visibleEnough) startAnimation();
+  }
+
+  addEventListener('scroll', checkPosition, { passive: true });
+  addEventListener('resize', checkPosition);
+
+  // Handles normal scrolling, anchor navigation, back/forward cache, and reloads
+  // while the EVENT SCHEDULE section is already in the viewport.
+  requestAnimationFrame(checkPosition);
+  setTimeout(checkPosition, 120);
 })();
