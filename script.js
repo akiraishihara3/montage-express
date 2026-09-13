@@ -72,11 +72,7 @@
     }
   }
 
-  const scheduleSection = document.getElementById('schedule');
   const scheduleGrid = document.getElementById('scheduleGrid');
-  const scheduleTokens = [];
-  let schedulePlayed = false;
-
   if (scheduleGrid && Array.isArray(data.schedule)) {
     scheduleGrid.innerHTML = data.schedule.map(item => `
       <article class="scheduleCard">
@@ -87,101 +83,6 @@
         <p>${item.time}</p>
       </article>
     `).join('');
-  }
-
-  function prepareScheduleNumericText(el) {
-    if (!el) return;
-    const original = el.textContent || '';
-    el.setAttribute('aria-label', original);
-
-    const fragment = document.createDocumentFragment();
-    const pattern = /\d+/g;
-    let cursor = 0;
-    let match;
-
-    while ((match = pattern.exec(original))) {
-      if (match.index > cursor) {
-        fragment.append(document.createTextNode(original.slice(cursor, match.index)));
-      }
-
-      const raw = match[0];
-      const span = document.createElement('span');
-      span.className = 'scheduleCount';
-      span.dataset.target = String(Number(raw));
-      span.dataset.pad = String(raw.length);
-      span.textContent = reduceMotion ? raw : String(0).padStart(raw.length, '0');
-      fragment.append(span);
-      scheduleTokens.push(span);
-      cursor = match.index + raw.length;
-    }
-
-    if (cursor < original.length) {
-      fragment.append(document.createTextNode(original.slice(cursor)));
-    }
-
-    el.replaceChildren(fragment);
-  }
-
-  function setScheduleFinalValues() {
-    scheduleTokens.forEach(token => {
-      const target = Number(token.dataset.target || 0);
-      const pad = Number(token.dataset.pad || 1);
-      token.textContent = String(target).padStart(pad, '0');
-    });
-    scheduleSection?.classList.add('is-in');
-  }
-
-  function animateScheduleToken(token, index) {
-    const target = Number(token.dataset.target || 0);
-    const pad = Number(token.dataset.pad || 1);
-    const delay = 80 + index * 42;
-    const duration = 900 + Math.min(target * 14, 440);
-    const startAt = performance.now() + delay;
-
-    const frame = now => {
-      if (now < startAt) {
-        requestAnimationFrame(frame);
-        return;
-      }
-
-      const progress = Math.min(1, (now - startAt) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const value = Math.round(target * eased);
-      token.textContent = String(value).padStart(pad, '0');
-
-      if (progress < 1) requestAnimationFrame(frame);
-    };
-
-    requestAnimationFrame(frame);
-  }
-
-  function startScheduleAnimation() {
-    if (schedulePlayed || !scheduleSection) return;
-    schedulePlayed = true;
-    scheduleSection.classList.add('is-in');
-
-    if (reduceMotion) {
-      setScheduleFinalValues();
-      return;
-    }
-
-    scheduleTokens.forEach(animateScheduleToken);
-    setTimeout(setScheduleFinalValues, 2600);
-  }
-
-  if (scheduleSection && scheduleGrid) {
-    const numericTargets = [
-      scheduleSection.querySelector('.scheduleSection__head [data-bind="seasonLabel"]'),
-      ...scheduleGrid.querySelectorAll('.scheduleCard strong, .scheduleCard p')
-    ].filter(Boolean);
-
-    numericTargets.forEach(prepareScheduleNumericText);
-    scheduleSection.classList.add('scheduleMotion-ready');
-
-    if (reduceMotion) {
-      schedulePlayed = true;
-      setScheduleFinalValues();
-    }
   }
 
   const hero = document.getElementById('heroScroll');
@@ -270,13 +171,6 @@
       }
     });
 
-    if (scheduleSection && !schedulePlayed) {
-      const rect = scheduleSection.getBoundingClientRect();
-      if (rect.top <= innerHeight * .86 && rect.bottom > 0) {
-        startScheduleAnimation();
-      }
-    }
-
     ticking = false;
   }
 
@@ -288,7 +182,6 @@
   addEventListener('resize', requestUpdate);
   addEventListener('pageshow', requestUpdate);
   update();
-  setTimeout(requestUpdate, 160);
 
   if (menuBtn && mobileSheet) {
     menuBtn.addEventListener('click', () => {
