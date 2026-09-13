@@ -84,7 +84,7 @@
     `).join('');
 
     const scheduleMotionScript = document.createElement('script');
-    scheduleMotionScript.src = 'schedule-motion.js?v=20260913-2';
+    scheduleMotionScript.src = 'schedule-motion.js?v=20260913-3';
     scheduleMotionScript.dataset.scheduleMotion = 'true';
     document.body.appendChild(scheduleMotionScript);
   }
