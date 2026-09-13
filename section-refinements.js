@@ -134,7 +134,6 @@
         }
       });
 
-      /* After PEOPLE, fade to the dedicated Micro Values artwork. */
       if (heroThemeImage) {
         const themeReveal = smooth(rangeProgress(p, .855, .935));
         const themeZoom = 1.035 + themeReveal * .035;
@@ -155,5 +154,22 @@
     addEventListener('resize', requestHeroLegibility);
     addEventListener('pageshow', requestHeroLegibility);
     updateHeroLegibility();
+  }
+
+  /* Load the VISIT access map enhancement. */
+  if (!document.querySelector('link[data-access-map]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'access-map.css?v=20260913-2';
+    link.dataset.accessMap = 'true';
+    document.head.appendChild(link);
+  }
+
+  if (!document.querySelector('script[data-access-map]')) {
+    const script = document.createElement('script');
+    script.src = 'access-map.js?v=20260913-2';
+    script.defer = true;
+    script.dataset.accessMap = 'true';
+    document.body.appendChild(script);
   }
 })();
