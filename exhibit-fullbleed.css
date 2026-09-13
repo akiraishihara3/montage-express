@@ -1,7 +1,8 @@
 /* Legacy compatibility entrypoint.
    EXHIBIT uses the default two-column layout from styles.css.
    CONCEPT receives the full-bleed seasonal treatment.
-   Hero-following utility navigation and hero readability refinements are loaded here for compatibility. */
+   Hero-following utility navigation, hero readability refinements, and schedule motion are loaded here for compatibility. */
 @import url("concept-fullbleed.css?v=20260913-2");
 @import url("quick-access.css?v=20260913-1");
 @import url("hero-readability.css?v=20260913-1");
+@import url("schedule-motion.css?v=20260913-1");
