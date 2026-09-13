@@ -50,3 +50,10 @@ window.SITE_DATA = {
     { date: '2.26 FRI', time: '10:00 A.M - 4:00 P.M' }
   ]
 };
+
+/* Load schedule motion after the main deferred script has rendered the schedule cards. */
+window.addEventListener('DOMContentLoaded', () => {
+  const motionScript = document.createElement('script');
+  motionScript.src = 'schedule-motion.js?v=20260913-1';
+  document.body.appendChild(motionScript);
+}, { once: true });
