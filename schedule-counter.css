@@ -1,0 +1,31 @@
+.scheduleCounterValue{
+  display:inline-block;
+  min-width:.55em;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+  will-change:contents;
+}
+
+.scheduleCounterReady .scheduleCard small,
+.scheduleCounterReady .scheduleCounterStatic{
+  opacity:.45;
+  transform:translateY(6px);
+  transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1);
+}
+
+.scheduleCounterRunning .scheduleCard small,
+.scheduleCounterRunning .scheduleCounterStatic,
+.scheduleCounterDone .scheduleCard small,
+.scheduleCounterDone .scheduleCounterStatic{
+  opacity:1;
+  transform:translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .scheduleCounterReady .scheduleCard small,
+  .scheduleCounterReady .scheduleCounterStatic{
+    opacity:1;
+    transform:none;
+    transition:none;
+  }
+}
