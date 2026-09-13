@@ -109,6 +109,7 @@
   }
 
   const windows = [[0.00,0.285],[0.205,0.505],[0.425,0.725],[0.645,1.00]];
+  const copyWindows = [[0.00,0.235],[0.235,0.455],[0.455,0.675],[0.675,0.86]];
   let ticking = false;
 
   function update(){
@@ -123,22 +124,40 @@
 
       scenes.forEach((scene,i) => {
         const [a,b] = windows[i];
-        let op = windowOpacity(p,a,b,.06,.065,i===0,i===3);
-        if (i===3 && p > .86) op = 1;
+        let imageOp = windowOpacity(p,a,b,.06,.065,i===0,i===3);
+        if (i===3 && p > .86) imageOp = 1;
         if (reduceMotion){
-          op = p < .25 ? (i===0?1:0) : p < .5 ? (i===1?1:0) : p < .75 ? (i===2?1:0) : (i===3?1:0);
+          imageOp = p < .25 ? (i===0?1:0) : p < .5 ? (i===1?1:0) : p < .75 ? (i===2?1:0) : (i===3?1:0);
         }
-        scene.style.opacity = op.toFixed(3);
+
+        /* Keep the scene wrapper fully opaque. Only the background image crossfades. */
+        scene.style.opacity = '1';
+        scene.style.filter = 'none';
+
         const local = rangeProgress(p,a,b);
-        if (sceneImages[i]) sceneImages[i].style.transform = `scale(${1.015 + local * .05})`;
-        scene.style.filter = `blur(${(1-op)*7}px)`;
-        let copyOp = op;
-        if (i===3 && p > .835) copyOp = 1-smooth(rangeProgress(p,.835,.905));
+        if (sceneImages[i]) {
+          sceneImages[i].style.opacity = imageOp.toFixed(3);
+          sceneImages[i].style.filter = `blur(${((1-imageOp)*5).toFixed(2)}px)`;
+          sceneImages[i].style.transform = `scale(${1.015 + local * .05})`;
+        }
+
         if (sceneCopies[i]) {
+          const [copyStart, copyEnd] = copyWindows[i];
+          const edge = .012;
+          let copyOp = 0;
+          if (p >= copyStart && p <= copyEnd) {
+            copyOp = 1;
+            if (p < copyStart + edge && i !== 0) copyOp = smooth((p-copyStart)/edge);
+            if (p > copyEnd - edge) copyOp = 1-smooth((p-(copyEnd-edge))/edge);
+          }
+          if (reduceMotion) copyOp = imageOp > .5 ? 1 : 0;
+
           sceneCopies[i].style.opacity = copyOp.toFixed(3);
-          const enterLift = (1-clamp(local/.16))*24;
-          const exitLift = smooth(clamp((local-.70)/.30))*-48;
-          sceneCopies[i].style.transform = `translateY(${enterLift+exitLift}px)`;
+          sceneCopies[i].style.color = '#fff';
+          const copyLocal = rangeProgress(p,copyStart,copyEnd);
+          const enterX = (1-clamp(copyLocal/.08))*-18;
+          const exitX = smooth(clamp((copyLocal-.92)/.08))*14;
+          sceneCopies[i].style.transform = `translate3d(${enterX+exitX}px,0,0)`;
         }
       });
 
