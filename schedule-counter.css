@@ -1,9 +1,29 @@
-.scheduleCounterValue{
+.scheduleSection__head h2{
+  font-size:100px !important;
+  line-height:.9;
+  letter-spacing:-.055em;
+}
+
+.scheduleCard strong{
+  display:flex;
+  align-items:baseline;
+  gap:.12em;
+  font-size:80px !important;
+  line-height:.95;
+  letter-spacing:-.045em;
+}
+
+.scheduleCounterValue,
+.scheduleCounterWeekday{
   display:inline-block;
   min-width:.55em;
   font-variant-numeric:tabular-nums;
   font-feature-settings:"tnum" 1;
-  will-change:contents;
+  will-change:contents,transform,opacity;
+}
+
+.scheduleCounterWeekday{
+  min-width:2.5em;
 }
 
 .scheduleCounterReady .scheduleCard small,
@@ -21,11 +41,35 @@
   transform:translateY(0);
 }
 
+.scheduleCounterRunning .scheduleCounterWeekday{
+  animation:scheduleWeekdayRoll .98s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes scheduleWeekdayRoll{
+  0%{opacity:.28;transform:translateY(.35em)}
+  35%{opacity:.82;transform:translateY(.10em)}
+  100%{opacity:1;transform:translateY(0)}
+}
+
+@media (max-width:900px){
+  .scheduleSection__head h2{
+    font-size:clamp(64px,16vw,100px) !important;
+  }
+
+  .scheduleCard strong{
+    font-size:clamp(54px,14vw,80px) !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce){
   .scheduleCounterReady .scheduleCard small,
   .scheduleCounterReady .scheduleCounterStatic{
     opacity:1;
     transform:none;
     transition:none;
+  }
+
+  .scheduleCounterWeekday{
+    animation:none !important;
   }
 }
