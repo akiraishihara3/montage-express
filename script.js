@@ -82,6 +82,11 @@
         <p>${item.time}</p>
       </article>
     `).join('');
+
+    const scheduleMotionScript = document.createElement('script');
+    scheduleMotionScript.src = 'schedule-motion.js?v=20260913-2';
+    scheduleMotionScript.dataset.scheduleMotion = 'true';
+    document.body.appendChild(scheduleMotionScript);
   }
 
   const hero = document.getElementById('heroScroll');
