@@ -1,5 +1,6 @@
 (() => {
   const data = window.SITE_DATA || {};
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const multiline = value => String(value ?? '').split('\n').join('<br>');
 
   document.querySelectorAll('[data-bind]').forEach(el => {
@@ -71,7 +72,11 @@
     }
   }
 
+  const scheduleSection = document.getElementById('schedule');
   const scheduleGrid = document.getElementById('scheduleGrid');
+  const scheduleTokens = [];
+  let schedulePlayed = false;
+
   if (scheduleGrid && Array.isArray(data.schedule)) {
     scheduleGrid.innerHTML = data.schedule.map(item => `
       <article class="scheduleCard">
@@ -82,11 +87,101 @@
         <p>${item.time}</p>
       </article>
     `).join('');
+  }
 
-    const scheduleMotionScript = document.createElement('script');
-    scheduleMotionScript.src = 'schedule-motion.js?v=20260913-3';
-    scheduleMotionScript.dataset.scheduleMotion = 'true';
-    document.body.appendChild(scheduleMotionScript);
+  function prepareScheduleNumericText(el) {
+    if (!el) return;
+    const original = el.textContent || '';
+    el.setAttribute('aria-label', original);
+
+    const fragment = document.createDocumentFragment();
+    const pattern = /\d+/g;
+    let cursor = 0;
+    let match;
+
+    while ((match = pattern.exec(original))) {
+      if (match.index > cursor) {
+        fragment.append(document.createTextNode(original.slice(cursor, match.index)));
+      }
+
+      const raw = match[0];
+      const span = document.createElement('span');
+      span.className = 'scheduleCount';
+      span.dataset.target = String(Number(raw));
+      span.dataset.pad = String(raw.length);
+      span.textContent = reduceMotion ? raw : String(0).padStart(raw.length, '0');
+      fragment.append(span);
+      scheduleTokens.push(span);
+      cursor = match.index + raw.length;
+    }
+
+    if (cursor < original.length) {
+      fragment.append(document.createTextNode(original.slice(cursor)));
+    }
+
+    el.replaceChildren(fragment);
+  }
+
+  function setScheduleFinalValues() {
+    scheduleTokens.forEach(token => {
+      const target = Number(token.dataset.target || 0);
+      const pad = Number(token.dataset.pad || 1);
+      token.textContent = String(target).padStart(pad, '0');
+    });
+    scheduleSection?.classList.add('is-in');
+  }
+
+  function animateScheduleToken(token, index) {
+    const target = Number(token.dataset.target || 0);
+    const pad = Number(token.dataset.pad || 1);
+    const delay = 80 + index * 42;
+    const duration = 900 + Math.min(target * 14, 440);
+    const startAt = performance.now() + delay;
+
+    const frame = now => {
+      if (now < startAt) {
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      const progress = Math.min(1, (now - startAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(target * eased);
+      token.textContent = String(value).padStart(pad, '0');
+
+      if (progress < 1) requestAnimationFrame(frame);
+    };
+
+    requestAnimationFrame(frame);
+  }
+
+  function startScheduleAnimation() {
+    if (schedulePlayed || !scheduleSection) return;
+    schedulePlayed = true;
+    scheduleSection.classList.add('is-in');
+
+    if (reduceMotion) {
+      setScheduleFinalValues();
+      return;
+    }
+
+    scheduleTokens.forEach(animateScheduleToken);
+    setTimeout(setScheduleFinalValues, 2600);
+  }
+
+  if (scheduleSection && scheduleGrid) {
+    const numericTargets = [
+      scheduleSection.querySelector('.scheduleSection__head [data-bind="seasonLabel"]'),
+      ...scheduleGrid.querySelectorAll('.scheduleCard strong, .scheduleCard p')
+    ].filter(Boolean);
+
+    numericTargets.forEach(prepareScheduleNumericText);
+    scheduleSection.classList.add('scheduleMotion-ready');
+
+    if (reduceMotion) {
+      schedulePlayed = true;
+      setScheduleFinalValues();
+    }
   }
 
   const hero = document.getElementById('heroScroll');
@@ -99,7 +194,6 @@
   const portals = [...document.querySelectorAll('.portal')];
   const menuBtn = document.getElementById('menuBtn');
   const mobileSheet = document.getElementById('mobileSheet');
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const clamp = (n,a=0,b=1) => Math.min(b,Math.max(a,n));
   const smooth = t => t*t*(3-2*t);
@@ -118,40 +212,47 @@
 
   function update(){
     const y = scrollY;
-    const heroTop = hero.offsetTop;
-    const max = Math.max(1, hero.offsetHeight - innerHeight);
-    const p = clamp((y - heroTop) / max);
-    const inHero = y < heroTop + max + innerHeight - 4;
-    header.classList.toggle('scrolled', !inHero || y > max * 0.96);
 
-    scenes.forEach((scene,i) => {
-      const [a,b] = windows[i];
-      let op = windowOpacity(p,a,b,.06,.065,i===0,i===3);
-      if (i===3 && p > .86) op = 1;
-      if (reduceMotion){
-        op = p < .25 ? (i===0?1:0) : p < .5 ? (i===1?1:0) : p < .75 ? (i===2?1:0) : (i===3?1:0);
+    if (hero) {
+      const heroTop = hero.offsetTop;
+      const max = Math.max(1, hero.offsetHeight - innerHeight);
+      const p = clamp((y - heroTop) / max);
+      const inHero = y < heroTop + max + innerHeight - 4;
+      header?.classList.toggle('scrolled', !inHero || y > max * 0.96);
+
+      scenes.forEach((scene,i) => {
+        const [a,b] = windows[i];
+        let op = windowOpacity(p,a,b,.06,.065,i===0,i===3);
+        if (i===3 && p > .86) op = 1;
+        if (reduceMotion){
+          op = p < .25 ? (i===0?1:0) : p < .5 ? (i===1?1:0) : p < .75 ? (i===2?1:0) : (i===3?1:0);
+        }
+        scene.style.opacity = op.toFixed(3);
+        const local = rangeProgress(p,a,b);
+        if (sceneImages[i]) sceneImages[i].style.transform = `scale(${1.015 + local * .05})`;
+        scene.style.filter = `blur(${(1-op)*7}px)`;
+        let copyOp = op;
+        if (i===3 && p > .835) copyOp = 1-smooth(rangeProgress(p,.835,.905));
+        if (sceneCopies[i]) {
+          sceneCopies[i].style.opacity = copyOp.toFixed(3);
+          const enterLift = (1-clamp(local/.16))*24;
+          const exitLift = smooth(clamp((local-.70)/.30))*-48;
+          sceneCopies[i].style.transform = `translateY(${enterLift+exitLift}px)`;
+        }
+      });
+
+      const m = smooth(rangeProgress(p,.86,.94));
+      if (themeOverlay) {
+        themeOverlay.style.opacity = m.toFixed(3);
+        themeOverlay.style.transform = `translateY(${(1-m)*34}px)`;
       }
-      scene.style.opacity = op.toFixed(3);
-      const local = rangeProgress(p,a,b);
-      sceneImages[i].style.transform = `scale(${1.015 + local * .05})`;
-      scene.style.filter = `blur(${(1-op)*7}px)`;
-      let copyOp = op;
-      if (i===3 && p > .835) copyOp = 1-smooth(rangeProgress(p,.835,.905));
-      sceneCopies[i].style.opacity = copyOp.toFixed(3);
-      const enterLift = (1-clamp(local/.16))*24;
-      const exitLift = smooth(clamp((local-.70)/.30))*-48;
-      sceneCopies[i].style.transform = `translateY(${enterLift+exitLift}px)`;
-    });
 
-    const m = smooth(rangeProgress(p,.86,.94));
-    themeOverlay.style.opacity = m.toFixed(3);
-    themeOverlay.style.transform = `translateY(${(1-m)*34}px)`;
-
-    const sceneStops = [.285,.505,.725,1];
-    progressBars.forEach((bar,i) => {
-      const prev = i===0 ? 0 : sceneStops[i-1];
-      bar.style.transform = `scaleX(${clamp((p-prev)/(sceneStops[i]-prev))})`;
-    });
+      const sceneStops = [.285,.505,.725,1];
+      progressBars.forEach((bar,i) => {
+        const prev = i===0 ? 0 : sceneStops[i-1];
+        bar.style.transform = `scaleX(${clamp((p-prev)/(sceneStops[i]-prev))})`;
+      });
+    }
 
     portals.forEach(sec => {
       const rect = sec.getBoundingClientRect();
@@ -169,6 +270,13 @@
       }
     });
 
+    if (scheduleSection && !schedulePlayed) {
+      const rect = scheduleSection.getBoundingClientRect();
+      if (rect.top <= innerHeight * .86 && rect.bottom > 0) {
+        startScheduleAnimation();
+      }
+    }
+
     ticking = false;
   }
 
@@ -178,17 +286,21 @@
 
   addEventListener('scroll', requestUpdate, {passive:true});
   addEventListener('resize', requestUpdate);
+  addEventListener('pageshow', requestUpdate);
   update();
+  setTimeout(requestUpdate, 160);
 
-  menuBtn.addEventListener('click', () => {
-    const open = mobileSheet.classList.toggle('open');
-    menuBtn.setAttribute('aria-expanded', String(open));
-    menuBtn.textContent = open ? 'CLOSE' : 'MENU';
-  });
+  if (menuBtn && mobileSheet) {
+    menuBtn.addEventListener('click', () => {
+      const open = mobileSheet.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.textContent = open ? 'CLOSE' : 'MENU';
+    });
 
-  mobileSheet.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    mobileSheet.classList.remove('open');
-    menuBtn.setAttribute('aria-expanded','false');
-    menuBtn.textContent = 'MENU';
-  }));
+    mobileSheet.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      mobileSheet.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded','false');
+      menuBtn.textContent = 'MENU';
+    }));
+  }
 })();
