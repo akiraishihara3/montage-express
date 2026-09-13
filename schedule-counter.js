@@ -1,4 +1,6 @@
 (() => {
+  // Reference motion: products.mocomoco.ai case-study counter.
+  // One continuous rAF count, fast at first and easing into the final value.
   const section = document.getElementById('schedule');
   const grid = document.getElementById('scheduleGrid');
   const data = window.SITE_DATA || {};
@@ -8,8 +10,8 @@
   if (!headingValue) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const duration = 1050;
-  const startDelay = 90;
+  const duration = 980;
+  const startDelay = 70;
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
   const season = Number.parseInt(String(data.seasonLabel || '37'), 10) || 37;
@@ -31,27 +33,27 @@
     };
   };
 
-  const dateSpan = (item, index) => {
+  const dateSpan = item => {
     const date = parseDate(item.date);
     if (!date) return item.date;
     const target = date.month * 100 + date.day;
-    return `<span class="scheduleCounterValue" data-counter-kind="date" data-counter-target="${target}" data-counter-index="${index}">0.00</span> <span class="scheduleCounterStatic">${date.weekday}</span>`;
+    return `<span class="scheduleCounterValue" data-counter-kind="date" data-counter-target="${target}">0.00</span> <span class="scheduleCounterStatic">${date.weekday}</span>`;
   };
 
-  const timeSpans = (item, index) => {
+  const timeSpans = item => {
     const range = parseRange(item.time);
     if (!range) return item.time;
-    return `<span class="scheduleCounterValue" data-counter-kind="time" data-counter-target="${range.startMinutes}" data-counter-index="${index}">00:00</span> <span class="scheduleCounterStatic">${range.startPeriod}</span> <span class="scheduleCounterStatic">-</span> <span class="scheduleCounterValue" data-counter-kind="time" data-counter-target="${range.endMinutes}" data-counter-index="${index}">00:00</span> <span class="scheduleCounterStatic">${range.endPeriod}</span>`;
+    return `<span class="scheduleCounterValue" data-counter-kind="time" data-counter-target="${range.startMinutes}">00:00</span> <span class="scheduleCounterStatic">${range.startPeriod}</span> <span class="scheduleCounterStatic">-</span> <span class="scheduleCounterValue" data-counter-kind="time" data-counter-target="${range.endMinutes}">00:00</span> <span class="scheduleCounterStatic">${range.endPeriod}</span>`;
   };
 
-  headingValue.innerHTML = `<span class="scheduleCounterValue" data-counter-kind="integer" data-counter-target="${season}" data-counter-index="0">00</span>th Exhibition`;
-  grid.innerHTML = data.schedule.map((item, index) => `
+  headingValue.innerHTML = `<span class="scheduleCounterValue" data-counter-kind="integer" data-counter-target="${season}">00</span>th Exhibition`;
+  grid.innerHTML = data.schedule.map(item => `
     <article class="scheduleCard">
       <div>
         <small>OPENING HOURS</small>
-        <strong aria-label="${item.date}">${dateSpan(item, index + 1)}</strong>
+        <strong aria-label="${item.date}">${dateSpan(item)}</strong>
       </div>
-      <p aria-label="${item.time}">${timeSpans(item, index + 1)}</p>
+      <p aria-label="${item.time}">${timeSpans(item)}</p>
     </article>
   `).join('');
 
@@ -96,7 +98,6 @@
     if (started) return;
     started = true;
     section.classList.add('scheduleCounterRunning');
-
     const startTime = performance.now() + startDelay;
 
     const frame = now => {
@@ -133,14 +134,16 @@
     if (!started && visibleEnough()) start();
   };
 
-  const observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.12)) {
-      start();
-      observer.disconnect();
-    }
-  }, { threshold:[0.12, 0.25, 0.5] });
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.12)) {
+        start();
+        observer.disconnect();
+      }
+    }, { threshold:[0.12, 0.25, 0.5] });
+    observer.observe(section);
+  }
 
-  observer.observe(section);
   addEventListener('scroll', check, { passive:true });
   addEventListener('resize', check);
   addEventListener('pageshow', check);
