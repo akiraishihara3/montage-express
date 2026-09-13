@@ -13,13 +13,20 @@
   const duration = 980;
   const startDelay = 70;
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   const season = Number.parseInt(String(data.seasonLabel || '37'), 10) || 37;
 
   const parseDate = value => {
-    const match = String(value).match(/^(\d+)\.(\d+)\s+(.+)$/);
+    const match = String(value).match(/^(\d+)\.(\d+)\s+([A-Z]{3})$/i);
     if (!match) return null;
-    return { month:Number(match[1]), day:Number(match[2]), weekday:match[3] };
+    const weekday = match[3].toUpperCase();
+    return {
+      month:Number(match[1]),
+      day:Number(match[2]),
+      weekday,
+      weekdayIndex:Math.max(0, weekdays.indexOf(weekday))
+    };
   };
 
   const parseRange = value => {
@@ -37,7 +44,7 @@
     const date = parseDate(item.date);
     if (!date) return item.date;
     const target = date.month * 100 + date.day;
-    return `<span class="scheduleCounterValue" data-counter-kind="date" data-counter-target="${target}">0.00</span> <span class="scheduleCounterStatic">${date.weekday}</span>`;
+    return `<span class="scheduleCounterValue" data-counter-kind="date" data-counter-target="${target}">0.00</span> <span class="scheduleCounterWeekday" data-weekday-target="${date.weekdayIndex}" aria-hidden="true">SUN</span>`;
   };
 
   const timeSpans = item => {
@@ -58,6 +65,7 @@
   `).join('');
 
   const values = [...section.querySelectorAll('.scheduleCounterValue')];
+  const weekdayValues = [...section.querySelectorAll('.scheduleCounterWeekday')];
   section.classList.add('scheduleCounterReady');
 
   const format = (el, rawValue) => {
@@ -84,7 +92,12 @@
       const target = Number(el.dataset.counterTarget || 0);
       el.textContent = format(el, target);
     });
+    weekdayValues.forEach(el => {
+      const target = Number(el.dataset.weekdayTarget || 0);
+      el.textContent = weekdays[target] || 'SUN';
+    });
     section.classList.add('scheduleCounterDone');
+    section.classList.remove('scheduleCounterRunning');
   };
 
   if (reduceMotion) {
@@ -113,6 +126,13 @@
         const target = Number(el.dataset.counterTarget || 0);
         const value = Math.min(target, Math.round(target * eased));
         el.textContent = format(el, value);
+      });
+
+      weekdayValues.forEach(el => {
+        const target = Number(el.dataset.weekdayTarget || 0);
+        const totalSteps = 14 + target;
+        const step = Math.min(totalSteps, Math.floor(eased * totalSteps));
+        el.textContent = weekdays[step % 7];
       });
 
       if (progress < 1) {
