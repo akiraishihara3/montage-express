@@ -99,17 +99,19 @@
       }));
     }
 
-    /* VISITORS: brand list, crowdfunding, registration, agreement, contact. */
+    /* VISITORS: keep the Google Map immediately after VISIT, then visitor resources. */
     const visit = document.getElementById('visit');
     if (visit && !document.getElementById('visitor-access')) {
-      visit.insertAdjacentElement('afterend', buildUtility({
+      const visitorAccess = buildUtility({
         id:'visitor-access',
         tone:'light',
         eyebrow:'VISITOR ACCESS',
         title:'Plan your visit.',
         lead:'出展ブランドの確認から来場登録、関連プロジェクトまで。現行サイトにある実用導線をまとめて残しています。',
         links:data.visitorResources || []
-      }));
+      });
+      const map = document.getElementById('accessMap') || document.getElementById('access-map');
+      (map || visit).insertAdjacentElement('afterend', visitorAccess);
     }
 
     /* GALLERY */
