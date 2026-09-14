@@ -30,6 +30,9 @@
       <div class="accessMap__canvas">
         <iframe
           id="visitMapFrame"
+          width="100%"
+          height="100%"
+          style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0;"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen
@@ -51,6 +54,18 @@
 
   venueNode.textContent = venue;
   addressNode.textContent = englishAddress;
+
+  Object.assign(iframe.style, {
+    position: 'absolute',
+    inset: '0',
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    minWidth: '100%',
+    minHeight: '100%',
+    maxWidth: 'none',
+    border: '0'
+  });
 
   iframe.src = `https://www.google.com/maps?hl=en&gl=us&q=${encoded}&z=16&output=embed`;
   link.href = `https://www.google.com/maps/search/?api=1&query=${encoded}&hl=en&gl=us`;
