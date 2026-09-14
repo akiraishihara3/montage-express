@@ -6,7 +6,7 @@
   margin:0;
   padding:0;
   overflow:hidden;
-  background:#050505;
+  background:#050505 !important;
   border:0;
 }
 
@@ -15,7 +15,7 @@
   width:100%;
   height:clamp(460px,52vw,700px);
   overflow:hidden;
-  background:#050505;
+  background:#050505 !important;
 }
 
 .accessMap__canvas iframe,
@@ -28,11 +28,12 @@
   min-width:100%;
   min-height:100%;
   max-width:none !important;
+  max-height:none !important;
   border:0;
   margin:0;
   padding:0;
-  background:#050505;
-  filter:grayscale(1) invert(1) contrast(1.18) brightness(.82);
+  background:#050505 !important;
+  filter:invert(1) grayscale(1) contrast(1.32) brightness(.68) !important;
   transform:translateZ(0);
 }
 
@@ -41,7 +42,7 @@
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:rgba(0,0,0,.08);
+  background:rgba(0,0,0,.14);
   z-index:2;
 }
 
