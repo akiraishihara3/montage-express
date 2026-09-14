@@ -18,7 +18,7 @@
           <p class="accessMap__venue" id="accessMapVenue"></p>
           <p class="accessMap__address" id="accessMapAddress"></p>
           <a class="accessMap__link" id="visitMapLink" target="_blank" rel="noopener noreferrer">
-            Google Mapsで開く <span aria-hidden="true">↗</span>
+            Open in Google Maps <span aria-hidden="true">↗</span>
           </a>
         </div>
       </div>
@@ -27,7 +27,7 @@
       </div>
       <div class="accessMap__caption">
         <span>MONTAGE / TOKYO</span>
-        <span>Google Maps</span>
+        <span>Google Maps / English</span>
       </div>`;
     visit.insertAdjacentElement('afterend', section);
   }
@@ -40,12 +40,12 @@
 
   const venue = data.venueName || 'Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F';
   const address = data.venueAddress || '〒105-7501 東京都港区海岸1-7-1';
-  const query = `${venue} ${address}`.trim();
-  const encoded = encodeURIComponent(query);
+  const mapQuery = data.venueMapQuery || `${venue}, Tokyo, Japan`;
+  const encoded = encodeURIComponent(mapQuery);
 
   venueNode.textContent = venue;
   addressNode.textContent = address;
-  iframe.src = `https://www.google.com/maps?q=${encoded}&output=embed`;
+  iframe.src = `https://www.google.com/maps?hl=en&q=${encoded}&output=embed`;
   iframe.title = `${venue} Google Map`;
-  link.href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+  link.href = `https://www.google.com/maps/search/?api=1&query=${encoded}&hl=en`;
 })();
