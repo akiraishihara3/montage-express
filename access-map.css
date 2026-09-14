@@ -1,82 +1,23 @@
-/* VISIT / ACCESS MAP — responsive full-width Google Map */
+/* VISIT / ACCESS MAP — full-width dark monochrome Google Map */
 .accessMap{
   position:relative;
   width:100%;
   max-width:none;
-  background:#f3f1ec;
-  border-bottom:1px solid var(--line);
+  margin:0;
+  padding:0;
   overflow:hidden;
-}
-.accessMap__head{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(320px,.9fr);
-  gap:48px;
-  align-items:end;
-  padding:96px var(--pad) 42px;
-}
-.accessMap__eyebrow{
-  display:block;
-  margin:0 0 18px;
-  font-size:11px;
-  line-height:1;
-  font-weight:700;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-}
-.accessMap__title{
-  margin:0;
-  font-size:clamp(58px,8vw,126px);
-  line-height:.82;
-  letter-spacing:-.075em;
-  font-weight:760;
-}
-.accessMap__meta{
-  justify-self:end;
-  width:min(100%,560px);
-}
-.accessMap__venue{
-  margin:0;
-  font-size:clamp(20px,2vw,30px);
-  line-height:1.25;
-  letter-spacing:-.025em;
-  font-weight:680;
-}
-.accessMap__address{
-  margin:12px 0 24px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.75;
-}
-.accessMap__link{
-  display:inline-flex;
-  align-items:center;
-  gap:12px;
-  min-height:48px;
-  padding:0 18px;
-  border:1px solid rgba(17,17,15,.38);
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:.02em;
-  transition:transform .2s ease,background .2s ease,color .2s ease;
-}
-.accessMap__link:hover{
-  transform:translateY(-2px);
-  background:#111;
-  color:#fff;
+  background:#050505;
+  border:0;
 }
 
-/* Full-bleed map: always spans the viewport, even inside a constrained parent. */
 .accessMap__canvas{
   position:relative;
-  left:50%;
-  width:100vw;
-  max-width:none;
+  width:100%;
   height:clamp(460px,52vw,700px);
-  margin-left:-50vw;
   overflow:hidden;
-  background:#e8ecea;
+  background:#050505;
 }
+
 .accessMap__canvas iframe,
 #visitMapFrame{
   position:absolute;
@@ -90,49 +31,23 @@
   border:0;
   margin:0;
   padding:0;
-  filter:grayscale(.92) saturate(.38) sepia(.08) hue-rotate(155deg) brightness(1.08) contrast(.90);
+  background:#050505;
+  filter:grayscale(1) invert(1) contrast(1.18) brightness(.82);
+  transform:translateZ(0);
 }
+
 .accessMap__canvas::after{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:rgba(238,243,242,.06);
-  mix-blend-mode:screen;
+  background:rgba(0,0,0,.08);
   z-index:2;
-}
-.accessMap__caption{
-  display:flex;
-  justify-content:space-between;
-  gap:24px;
-  padding:16px var(--pad) 20px;
-  color:#747770;
-  font-size:10px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
 }
 
 @media(max-width:900px){
-  .accessMap__head{
-    grid-template-columns:1fr;
-    gap:32px;
-    padding:76px 22px 32px;
-  }
-  .accessMap__meta{
-    justify-self:start;
-    width:100%;
-  }
-  .accessMap__title{
-    font-size:clamp(56px,17vw,92px);
-    line-height:.86;
-  }
   .accessMap__canvas{
-    height:clamp(400px,66vw,540px);
-  }
-  .accessMap__caption{
-    padding:14px 22px 18px;
-    flex-direction:column;
-    gap:6px;
+    height:clamp(400px,70vw,540px);
   }
 }
 
