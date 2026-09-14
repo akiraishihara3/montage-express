@@ -10,8 +10,9 @@
   if (!hero || !heroSticky || !themeOverlay) return;
 
   /*
-   * Keep hero typography physically outside the scene/image stacking contexts.
-   * Layer order becomes: scene images -> shades -> scene copy -> theme copy/progress.
+   * Physically separate typography from image stacking contexts.
+   * Final layer order:
+   *   scene images (1) -> theme image (18) -> shades (20) -> copy (100) -> theme/progress (110+)
    */
   let copyLayer = heroSticky.querySelector('.heroCopyLayer');
   if (!copyLayer) {
@@ -21,9 +22,35 @@
     themeOverlay.insertAdjacentElement('beforebegin', copyLayer);
   }
 
-  copies.forEach(copy => {
-    if (copy && copy.parentElement !== copyLayer) copyLayer.appendChild(copy);
+  Object.assign(copyLayer.style, {
+    position: 'absolute',
+    inset: '0',
+    zIndex: '100',
+    pointerEvents: 'none',
+    overflow: 'visible'
   });
+
+  scenes.forEach(scene => {
+    scene.style.setProperty('z-index', '1', 'important');
+    scene.style.setProperty('opacity', '1', 'important');
+    scene.style.setProperty('filter', 'none', 'important');
+  });
+
+  copies.forEach(copy => {
+    if (!copy) return;
+    if (copy.parentElement !== copyLayer) copyLayer.appendChild(copy);
+    copy.style.setProperty('z-index', '1', 'important');
+  });
+
+  const topShade = heroSticky.querySelector('.heroTopShade');
+  const readShade = heroSticky.querySelector('.heroReadShade');
+  [topShade, readShade].forEach(shade => {
+    if (shade) shade.style.setProperty('z-index', '20', 'important');
+  });
+
+  themeOverlay.style.setProperty('z-index', '110', 'important');
+  const progress = heroSticky.querySelector('.heroProgress');
+  if (progress) progress.style.setProperty('z-index', '120', 'important');
 
   let heroThemeImage = document.getElementById('heroThemeImage');
   if (!heroThemeImage) {
@@ -34,6 +61,7 @@
     heroThemeImage.alt = `${data.themeName || 'Micro Values'} artwork`;
     copyLayer.insertAdjacentElement('beforebegin', heroThemeImage);
   }
+  heroThemeImage.style.setProperty('z-index', '18', 'important');
 
   const clamp = (n,a=0,b=1) => Math.min(b,Math.max(a,n));
   const smooth = t => t*t*(3-2*t);
@@ -47,6 +75,8 @@
     copy.style.setProperty('text-shadow', 'none', 'important');
     copy.style.setProperty('filter', 'none', 'important');
     copy.style.setProperty('mix-blend-mode', 'normal', 'important');
+    copy.style.setProperty('backdrop-filter', 'none', 'important');
+    copy.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
     copy.querySelectorAll('.scene__title,.scene__kicker,.scene__jp,.scene__meta').forEach(el => {
       el.style.setProperty('color', '#fff', 'important');
       el.style.setProperty('opacity', '1', 'important');
@@ -88,6 +118,7 @@
       el.style.setProperty('color','#fff','important');
       el.style.setProperty('text-shadow','none','important');
       el.style.setProperty('filter','none','important');
+      el.style.setProperty('opacity','1','important');
     });
 
     ticking = false;
