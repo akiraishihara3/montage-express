@@ -1,4 +1,4 @@
-/* VISIT / ACCESS MAP — full-width negative dark Google Map */
+/* VISIT / ACCESS MAP — high-contrast monochrome Google Map */
 .accessMap{
   position:relative;
   width:100%;
@@ -33,16 +33,18 @@
   margin:0;
   padding:0;
   background:#000 !important;
-  filter:invert(1) grayscale(1) brightness(.58) contrast(1.48) !important;
+  /* Keep the map black, but push labels / roads from gray toward white. */
+  filter:invert(1) grayscale(1) brightness(1.28) contrast(1.62) !important;
   transform:translateZ(0);
 }
 
+/* Do not dim the map after the iframe has been converted to monochrome. */
 .accessMap__canvas::after{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:rgba(0,0,0,.10);
+  background:transparent;
   z-index:2;
 }
 
