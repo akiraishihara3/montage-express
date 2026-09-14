@@ -3,6 +3,9 @@
   const visit = document.getElementById('visit');
   if (!visit) return;
 
+  /* Remove the legacy map block if an older cached loader created it. */
+  document.getElementById('access-map')?.remove();
+
   const venue = data.venueName || 'Tokyo Metropolitan Industrial Trade Center Hamamatsucho-Kan 4F';
   const englishAddress = data.venueAddressEnglish || '1-7-1 Kaigan, Minato-ku, Tokyo 105-7501, Japan';
   const query = `${venue} ${englishAddress}`.trim();
@@ -12,7 +15,6 @@
   if (!section) {
     section = document.createElement('section');
     section.id = 'accessMap';
-    visit.insertAdjacentElement('afterend', section);
   }
 
   section.className = 'accessMap accessMap--dark';
@@ -27,6 +29,19 @@
         title="Google Maps — English"
       ></iframe>
     </div>`;
+
+  /* The map must always be the immediate next section after VISIT. */
+  const placeDirectlyAfterVisit = () => {
+    if (visit.nextElementSibling !== section) {
+      visit.insertAdjacentElement('afterend', section);
+    }
+  };
+  placeDirectlyAfterVisit();
+
+  if ('MutationObserver' in window && visit.parentElement) {
+    const orderObserver = new MutationObserver(placeDirectlyAfterVisit);
+    orderObserver.observe(visit.parentElement, { childList: true });
+  }
 
   const canvas = document.getElementById('visitMapCanvas');
   const iframe = document.getElementById('visitMapFrame');
@@ -44,7 +59,9 @@
     maxHeight: 'none',
     border: '0',
     margin: '0',
-    padding: '0'
+    padding: '0',
+    background: '#050505',
+    filter: 'invert(1) grayscale(1) contrast(1.28) brightness(.72)'
   });
 
   const setFrameSize = () => {
