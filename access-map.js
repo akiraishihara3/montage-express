@@ -27,12 +27,9 @@
           </a>
         </div>
       </div>
-      <div class="accessMap__canvas">
+      <div class="accessMap__canvas" id="visitMapCanvas">
         <iframe
           id="visitMapFrame"
-          width="100%"
-          height="100%"
-          style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0;"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen
@@ -46,11 +43,12 @@
     visit.insertAdjacentElement('afterend', section);
   }
 
+  const canvas = document.getElementById('visitMapCanvas');
   const iframe = document.getElementById('visitMapFrame');
   const link = document.getElementById('visitMapLink');
   const venueNode = document.getElementById('accessMapVenue');
   const addressNode = document.getElementById('accessMapAddress');
-  if (!iframe || !link || !venueNode || !addressNode) return;
+  if (!canvas || !iframe || !link || !venueNode || !addressNode) return;
 
   venueNode.textContent = venue;
   addressNode.textContent = englishAddress;
@@ -64,9 +62,28 @@
     minWidth: '100%',
     minHeight: '100%',
     maxWidth: 'none',
-    border: '0'
+    maxHeight: 'none',
+    border: '0',
+    margin: '0',
+    padding: '0'
   });
 
-  iframe.src = `https://www.google.com/maps?hl=en&gl=us&q=${encoded}&z=16&output=embed`;
+  const setFrameSize = () => {
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.max(320, Math.round(rect.width));
+    const height = Math.max(320, Math.round(rect.height));
+    iframe.setAttribute('width', String(width));
+    iframe.setAttribute('height', String(height));
+  };
+
+  setFrameSize();
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(setFrameSize);
+    observer.observe(canvas);
+  } else {
+    window.addEventListener('resize', setFrameSize, { passive: true });
+  }
+
+  iframe.src = `https://maps.google.com/maps?hl=en&gl=us&q=${encoded}&z=16&ie=UTF8&iwloc=B&output=embed`;
   link.href = `https://www.google.com/maps/search/?api=1&query=${encoded}&hl=en&gl=us`;
 })();
