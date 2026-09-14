@@ -160,14 +160,14 @@
   if (!document.querySelector('link[data-access-map]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'access-map.css?v=20260913-2';
+    link.href = 'access-map.css?v=20260914-1';
     link.dataset.accessMap = 'true';
     document.head.appendChild(link);
   }
 
   if (!document.querySelector('script[data-access-map]')) {
     const script = document.createElement('script');
-    script.src = 'access-map.js?v=20260913-2';
+    script.src = 'access-map.js?v=20260914-1';
     script.defer = true;
     script.dataset.accessMap = 'true';
     document.body.appendChild(script);
