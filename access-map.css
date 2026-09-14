@@ -1,11 +1,10 @@
-/* VISIT / ACCESS MAP — full-width, low-saturation Google Map */
+/* VISIT / ACCESS MAP — English-only visual */
 .accessMap{
   position:relative;
   background:#f3f1ec;
   border-bottom:1px solid var(--line);
   overflow:hidden;
 }
-
 .accessMap__head{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(320px,.9fr);
@@ -13,7 +12,6 @@
   align-items:end;
   padding:96px var(--pad) 42px;
 }
-
 .accessMap__eyebrow{
   display:block;
   margin:0 0 18px;
@@ -23,7 +21,6 @@
   letter-spacing:.18em;
   text-transform:uppercase;
 }
-
 .accessMap__title{
   margin:0;
   font-size:clamp(58px,8vw,126px);
@@ -31,12 +28,10 @@
   letter-spacing:-.075em;
   font-weight:760;
 }
-
 .accessMap__meta{
   justify-self:end;
   width:min(100%,560px);
 }
-
 .accessMap__venue{
   margin:0;
   font-size:clamp(20px,2vw,30px);
@@ -44,14 +39,12 @@
   letter-spacing:-.025em;
   font-weight:680;
 }
-
 .accessMap__address{
   margin:12px 0 24px;
   color:var(--muted);
   font-size:14px;
   line-height:1.75;
 }
-
 .accessMap__link{
   display:inline-flex;
   align-items:center;
@@ -65,40 +58,86 @@
   letter-spacing:.02em;
   transition:transform .2s ease,background .2s ease,color .2s ease;
 }
-
 .accessMap__link:hover{
   transform:translateY(-2px);
   background:#111;
   color:#fff;
 }
-
 .accessMap__canvas{
   position:relative;
   width:100%;
   height:clamp(430px,48vw,650px);
   overflow:hidden;
-  background:#dfe4e4;
+  background:#e8ecea;
 }
-
-.accessMap__canvas iframe{
-  position:absolute;
-  inset:-2px;
-  width:calc(100% + 4px);
-  height:calc(100% + 4px);
-  border:0;
-  filter:grayscale(.92) saturate(.38) sepia(.08) hue-rotate(155deg) brightness(1.08) contrast(.90);
-  opacity:.96;
+.accessMap__canvas > div:not(.accessMap__mapLabel){
+  width:100%;
+  height:100%;
 }
-
 .accessMap__canvas::after{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:rgba(238,243,242,.08);
-  mix-blend-mode:screen;
+  background:rgba(242,244,242,.04);
+  z-index:2;
 }
-
+.accessMap__svg{
+  display:block;
+  width:100%;
+  height:100%;
+}
+.accessMap__label,
+.accessMap__station text{
+  fill:#6f7772;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  font-size:22px;
+  font-weight:600;
+  letter-spacing:.005em;
+}
+.accessMap__label--small{
+  font-size:18px;
+  font-weight:540;
+}
+.accessMap__station circle{
+  fill:#7f8b84;
+}
+.accessMap__venuePin path{
+  fill:#222722;
+}
+.accessMap__venueLabel{
+  fill:#202520;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  font-size:23px;
+  font-weight:760;
+  letter-spacing:-.01em;
+}
+.accessMap__mapLabel{
+  position:absolute;
+  left:var(--pad);
+  bottom:30px;
+  z-index:4;
+  width:min(460px,calc(100% - (var(--pad) * 2)));
+  padding:18px 20px;
+  background:rgba(244,243,238,.92);
+  border:1px solid rgba(17,17,15,.12);
+  backdrop-filter:blur(12px);
+  pointer-events:none;
+}
+.accessMap__mapLabel strong,
+.accessMap__mapLabel span{
+  display:block;
+}
+.accessMap__mapLabel strong{
+  font-size:16px;
+  line-height:1.3;
+}
+.accessMap__mapLabel span{
+  margin-top:7px;
+  color:#6f746f;
+  font-size:12px;
+  line-height:1.5;
+}
 .accessMap__caption{
   display:flex;
   justify-content:space-between;
@@ -109,37 +148,43 @@
   letter-spacing:.12em;
   text-transform:uppercase;
 }
-
 @media(max-width:900px){
   .accessMap__head{
     grid-template-columns:1fr;
     gap:32px;
     padding:76px 22px 32px;
   }
-
   .accessMap__meta{
     justify-self:start;
     width:100%;
   }
-
   .accessMap__title{
     font-size:clamp(56px,17vw,92px);
     line-height:.86;
   }
-
   .accessMap__canvas{
     height:420px;
   }
-
+  .accessMap__mapLabel{
+    left:22px;
+    bottom:22px;
+    width:calc(100% - 44px);
+  }
   .accessMap__caption{
     padding:14px 22px 18px;
     flex-direction:column;
     gap:6px;
   }
 }
-
 @media(max-width:520px){
   .accessMap__canvas{
     height:360px;
+  }
+  .accessMap__label,
+  .accessMap__station text{
+    font-size:28px;
+  }
+  .accessMap__venueLabel{
+    font-size:28px;
   }
 }
