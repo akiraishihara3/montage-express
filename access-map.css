@@ -1,6 +1,8 @@
-/* VISIT / ACCESS MAP — English-only visual */
+/* VISIT / ACCESS MAP — responsive full-width Google Map */
 .accessMap{
   position:relative;
+  width:100%;
+  max-width:none;
   background:#f3f1ec;
   border-bottom:1px solid var(--line);
   overflow:hidden;
@@ -63,80 +65,41 @@
   background:#111;
   color:#fff;
 }
+
+/* Full-bleed map: always spans the viewport, even inside a constrained parent. */
 .accessMap__canvas{
   position:relative;
-  width:100%;
-  height:clamp(430px,48vw,650px);
+  left:50%;
+  width:100vw;
+  max-width:none;
+  height:clamp(460px,52vw,700px);
+  margin-left:-50vw;
   overflow:hidden;
   background:#e8ecea;
 }
-.accessMap__canvas > div:not(.accessMap__mapLabel){
-  width:100%;
-  height:100%;
+.accessMap__canvas iframe,
+#visitMapFrame{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100% !important;
+  height:100% !important;
+  min-width:100%;
+  min-height:100%;
+  max-width:none !important;
+  border:0;
+  margin:0;
+  padding:0;
+  filter:grayscale(.92) saturate(.38) sepia(.08) hue-rotate(155deg) brightness(1.08) contrast(.90);
 }
 .accessMap__canvas::after{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:rgba(242,244,242,.04);
+  background:rgba(238,243,242,.06);
+  mix-blend-mode:screen;
   z-index:2;
-}
-.accessMap__svg{
-  display:block;
-  width:100%;
-  height:100%;
-}
-.accessMap__label,
-.accessMap__station text{
-  fill:#6f7772;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-  font-size:22px;
-  font-weight:600;
-  letter-spacing:.005em;
-}
-.accessMap__label--small{
-  font-size:18px;
-  font-weight:540;
-}
-.accessMap__station circle{
-  fill:#7f8b84;
-}
-.accessMap__venuePin path{
-  fill:#222722;
-}
-.accessMap__venueLabel{
-  fill:#202520;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-  font-size:23px;
-  font-weight:760;
-  letter-spacing:-.01em;
-}
-.accessMap__mapLabel{
-  position:absolute;
-  left:var(--pad);
-  bottom:30px;
-  z-index:4;
-  width:min(460px,calc(100% - (var(--pad) * 2)));
-  padding:18px 20px;
-  background:rgba(244,243,238,.92);
-  border:1px solid rgba(17,17,15,.12);
-  backdrop-filter:blur(12px);
-  pointer-events:none;
-}
-.accessMap__mapLabel strong,
-.accessMap__mapLabel span{
-  display:block;
-}
-.accessMap__mapLabel strong{
-  font-size:16px;
-  line-height:1.3;
-}
-.accessMap__mapLabel span{
-  margin-top:7px;
-  color:#6f746f;
-  font-size:12px;
-  line-height:1.5;
 }
 .accessMap__caption{
   display:flex;
@@ -148,6 +111,7 @@
   letter-spacing:.12em;
   text-transform:uppercase;
 }
+
 @media(max-width:900px){
   .accessMap__head{
     grid-template-columns:1fr;
@@ -163,12 +127,7 @@
     line-height:.86;
   }
   .accessMap__canvas{
-    height:420px;
-  }
-  .accessMap__mapLabel{
-    left:22px;
-    bottom:22px;
-    width:calc(100% - 44px);
+    height:clamp(400px,66vw,540px);
   }
   .accessMap__caption{
     padding:14px 22px 18px;
@@ -176,15 +135,9 @@
     gap:6px;
   }
 }
+
 @media(max-width:520px){
   .accessMap__canvas{
-    height:360px;
-  }
-  .accessMap__label,
-  .accessMap__station text{
-    font-size:28px;
-  }
-  .accessMap__venueLabel{
-    font-size:28px;
+    height:clamp(340px,92vw,440px);
   }
 }
