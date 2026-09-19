@@ -26,9 +26,7 @@
   const svg = $('#mapSvg');
   const map2d = $('#map2d');
   const map3d = $('#map3d');
-  const desktopResults = $('#desktopResults');
   const desktopPanelBody = $('#desktopPanelBody');
-  const desktopResultCount = $('#desktopResultCount');
   const desktopSuggestions = $('#desktopSuggestions');
   const mobileSuggestions = $('#mobileSuggestions');
   const backdrop = $('#sheetBackdrop');
@@ -78,15 +76,19 @@
   }
 
   function renderResults(){
+    if (state.selected && innerWidth > 900) return;
+    const countEl = $('#desktopResultCount');
+    const listEl = $('#desktopResults');
+    if (!countEl || !listEl) return;
     const list = filteredBooths().sort((a,b) => a.hall.localeCompare(b.hall) || a.id.localeCompare(b.id));
-    desktopResultCount.textContent = list.length;
-    desktopResults.innerHTML = list.length ? list.map(b => `
+    countEl.textContent = list.length;
+    listEl.innerHTML = list.length ? list.map(b => `
       <button class="resultItem" type="button" data-result-id="${b.id}">
         <span class="resultItem__id">${b.id}</span>
         <span><strong>${esc(b.brand)}</strong><small>${esc(b.company)}</small></span>
         <span class="resultItem__arrow">→</span>
       </button>`).join('') : '<div class="emptyState">該当する出展者が見つかりません。</div>';
-    $$('[data-result-id]', desktopResults).forEach(btn => btn.addEventListener('click', () => selectBooth(btn.dataset.resultId, true)));
+    $('[data-result-id]', listEl).forEach(btn => btn.addEventListener('click', () => selectBooth(btn.dataset.resultId, true)));
   }
 
   function suggestionList(){
@@ -299,8 +301,6 @@
 
   function renderResultsPanel(){
     desktopPanelBody.innerHTML = `<div class="resultHead"><span>EXHIBITORS</span><strong id="desktopResultCount">${filteredBooths().length}</strong></div><div class="resultList" id="desktopResults"></div>`;
-    window.desktopResultCount=$('#desktopResultCount');
-    window.desktopResults=$('#desktopResults');
     const list=filteredBooths().sort((a,b)=>a.hall.localeCompare(b.hall)||a.id.localeCompare(b.id));
     $('#desktopResults').innerHTML=list.length?list.map(b=>`<button class="resultItem" type="button" data-result-id="${b.id}"><span class="resultItem__id">${b.id}</span><span><strong>${esc(b.brand)}</strong><small>${esc(b.company)}</small></span><span class="resultItem__arrow">→</span></button>`).join(''):'<div class="emptyState">該当する出展者が見つかりません。</div>';
     $$('[data-result-id]',desktopPanelBody).forEach(btn=>btn.addEventListener('click',()=>selectBooth(btn.dataset.resultId,true)));
