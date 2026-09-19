@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   const data = window.MONTAGE_MAP_DATA;
   if (!data || !Array.isArray(data.booths)) return;
 
@@ -7,6 +7,50 @@
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const norm = s => String(s ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
+  const safeUrl = s => /^https?:\/\//i.test(String(s||'')) ? String(s) : '';
+
+  function parseCsv(text){
+    const rows=[];let row=[],cell='',quoted=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i],next=text[i+1];
+      if(quoted){
+        if(ch==='"'&&next==='"'){cell+='"';i++}
+        else if(ch==='"') quoted=false;
+        else cell+=ch;
+      }else{
+        if(ch==='"') quoted=true;
+        else if(ch===','){row.push(cell);cell=''}
+        else if(ch==='\n'){row.push(cell);rows.push(row);row=[];cell=''}
+        else if(ch!=='\r') cell+=ch;
+      }
+    }
+    row.push(cell);if(row.some(v=>v!==''))rows.push(row);return rows;
+  }
+
+  async function hydrateFromSheet(){
+    if(!data.sheetCsvUrl) return;
+    try{
+      const res=await fetch(data.sheetCsvUrl,{cache:'no-store'});if(!res.ok)throw new Error('sheet');
+      const rows=parseCsv(await res.text());if(rows.length<2)return;
+      const headers=rows[0].map(h=>norm(h));
+      const idx=name=>headers.indexOf(norm(name));
+      const get=(r,name)=>{const i=idx(name);return i>=0?(r[i]||'').trim():''};
+      const map=new Map(data.booths.map(b=>[norm(b.id),b]));
+      rows.slice(1).forEach(r=>{
+        const id=get(r,'Booth');const b=map.get(norm(id));if(!b)return;
+        const brand=get(r,'Brand'),company=get(r,'Company'),c1=get(r,'Category 1'),c2=get(r,'Category 2');
+        if(brand)b.brand=brand;if(company)b.company=company;
+        const cats=[c1,c2].filter(Boolean);if(cats.length)b.categories=cats;
+        b.brandUrl=get(r,'Brand URL')||b.brandUrl||'';
+        b.companyUrl=get(r,'Company URL')||b.companyUrl||'';
+        b.instagram=get(r,'Instagram')||b.instagram||'';
+        b.description=get(r,'Description')||b.description||'';
+        b.logo=get(r,'Brand Logo')||get(r,'Logo')||b.logo||'';
+      });
+    }catch(e){console.warn('MONTAGE map sheet could not be loaded',e)}
+  }
+
+  await hydrateFromSheet();
 
   const state = {
     hall:'ALL', query:'', categories:new Set(), selected:null, view:'2d',
@@ -269,19 +313,28 @@
   function detailMarkup(b, mobile=false){
     const saved=state.saved.has(b.id);
     const categories=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
+    const logo=safeUrl(b.logo)?`<img src="${esc(safeUrl(b.logo))}" alt="" style="display:block;max-width:160px;max-height:62px;object-fit:contain;margin:18px 0">`:'';
+    const desc=b.description?`<p style="margin:18px 0 0;font-size:11px;line-height:1.7;color:#666">${esc(b.description)}</p>`:'';
+    const links=[
+      ['Brand Website',safeUrl(b.brandUrl)],
+      ['Company Website',safeUrl(b.companyUrl)],
+      ['Instagram',safeUrl(b.instagram)]
+    ].filter(x=>x[1]).map(x=>`<a href="${esc(x[1])}" target="_blank" rel="noopener"><span>${x[0]}</span><span>↗</span></a>`).join('');
     return `<article class="detailCard">
       ${mobile?'':'<button class="detailBack" type="button" data-back-results>← BACK TO RESULTS</button>'}
       <p class="detailId">${b.id} / ${b.hall} HALL</p>
       <h2 class="detailBrand">${esc(b.brand)}</h2>
       <p class="detailCompany">${esc(b.company || 'Company information to be added')}</p>
+      ${logo}
       <div class="detailTags">${categories}</div>
+      ${desc}
       <div class="detailActions">
         <button class="button ${saved?'button--dark':''}" type="button" data-save-id="${b.id}">${saved?'♥ SAVED':'♡ SAVE'}</button>
         <button class="button" type="button" data-share-booth="${b.id}">SHARE ↗</button>
       </div>
       <div class="detailLinks">
         <button type="button" data-show-map="${b.id}"><span>SHOW ON MAP</span><span>→</span></button>
-        <span style="display:block;padding:12px 0;color:#8b8b84;font-size:9px;border-bottom:1px solid var(--line)">WEB / INSTAGRAM fields are ready for edition data.</span>
+        ${links || '<span style="display:block;padding:12px 0;color:#8b8b84;font-size:9px;border-bottom:1px solid var(--line)">WEB / INSTAGRAM fields are ready for Google Sheets data.</span>'}
       </div>
     </article>`;
   }
