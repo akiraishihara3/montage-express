@@ -203,16 +203,19 @@
   update();
 
   if (menuBtn && mobileSheet) {
-    menuBtn.addEventListener('click', () => {
-      const open = mobileSheet.classList.toggle('open');
+    const setMenuState = open => {
+      mobileSheet.classList.toggle('open', open);
+      header?.classList.toggle('menu-open', open);
       menuBtn.setAttribute('aria-expanded', String(open));
       menuBtn.textContent = open ? 'CLOSE' : 'MENU';
+    };
+
+    menuBtn.addEventListener('click', () => {
+      setMenuState(!mobileSheet.classList.contains('open'));
     });
 
     mobileSheet.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      mobileSheet.classList.remove('open');
-      menuBtn.setAttribute('aria-expanded','false');
-      menuBtn.textContent = 'MENU';
+      setMenuState(false);
     }));
   }
 })();
