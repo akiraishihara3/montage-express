@@ -67,6 +67,11 @@
   const desktopSuggestions = $('#desktopSuggestions');
   const mobileSuggestions = $('#mobileSuggestions');
   const backdrop = $('#sheetBackdrop');
+  const mapCallout = $('#mapCallout');
+  const mapCalloutId = $('#mapCalloutId');
+  const mapCalloutBrand = $('#mapCalloutBrand');
+  const mapCalloutCompany = $('#mapCalloutCompany');
+  const mapCalloutTags = $('#mapCalloutTags');
 
   $('#dataStatus').textContent = data.dataStatus || '';
 
@@ -201,11 +206,9 @@
     html += '</g><g class="booths">';
     data.booths.forEach(b => {
       const cx=b.x+b.w/2, cy=b.y+b.h/2;
-      const brand = b.brand.length > 20 ? b.brand.slice(0,18)+'…' : b.brand;
       html += `<g class="booth" data-booth="${b.id}" tabindex="0" role="button" aria-label="${esc(b.id+' '+b.brand)}">
         <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="1"></rect>
-        <text class="booth-id" x="${cx}" y="${cy-2}">${b.id}</text>
-        <text class="booth-brand" x="${cx}" y="${cy+6}">${esc(brand)}</text>
+        <text class="booth-id" x="${cx}" y="${cy}">${b.id}</text>
       </g>`;
     });
     html += '</g>';
@@ -227,6 +230,7 @@
     state.viewBox=next;
     svg.setAttribute('viewBox',`${next.x} ${next.y} ${next.w} ${next.h}`);
     stage.classList.toggle('is-close', next.w < 590);
+    if(state.selected && state.view==='2d') updateMapCalloutPosition();
   }
 
   function fitRect(rect,pad=26){
@@ -295,6 +299,59 @@
     });
   }
 
+  function showMapCallout(b){
+    if(!mapCallout || innerWidth<=900) return;
+    mapCalloutId.textContent=`${b.id} / ${b.hall} HALL`;
+    mapCalloutBrand.textContent=b.brand || '';
+    mapCalloutCompany.textContent=b.company || '';
+    mapCalloutTags.innerHTML=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
+    mapCallout.hidden=false;
+    requestAnimationFrame(updateMapCalloutPosition);
+  }
+
+  function hideMapCallout(){
+    if(mapCallout) mapCallout.hidden=true;
+  }
+
+  function updateMapCalloutPosition(){
+    if(!mapCallout || mapCallout.hidden || !state.selected || innerWidth<=900) return;
+    const b=byId.get(state.selected); if(!b) return;
+    const stageRect=stage.getBoundingClientRect();
+    let x=null,y=null;
+
+    if(state.view==='3d' && state.three){
+      const t=state.three, mesh=t.meshes.get(b.id); if(!mesh) return;
+      const p=new THREE.Vector3(mesh.position.x,34+4,mesh.position.z);
+      p.project(t.camera);
+      if(p.z < -1 || p.z > 1){ mapCallout.hidden=true; return; }
+      const canvasRect=t.renderer.domElement.getBoundingClientRect();
+      x=(canvasRect.left-stageRect.left)+(p.x*.5+.5)*canvasRect.width;
+      y=(canvasRect.top-stageRect.top)+(-p.y*.5+.5)*canvasRect.height;
+    }else if(state.view==='2d'){
+      const ctm=svg.getScreenCTM(); if(!ctm) return;
+      const p=svg.createSVGPoint();p.x=b.x+b.w/2;p.y=b.y;
+      const s=p.matrixTransform(ctm);
+      x=s.x-stageRect.left;y=s.y-stageRect.top;
+    }
+
+    if(x===null||y===null)return;
+    const pad=168;
+    x=clamp(x,pad,Math.max(pad,stageRect.width-pad));
+    y=clamp(y,130,stageRect.height-30);
+    mapCallout.style.left=`${x}px`;
+    mapCallout.style.top=`${y}px`;
+  }
+
+  function clearSelection(){
+    state.selected=null;
+    hideMapCallout();
+    update2DState();update3DState();
+    if(innerWidth>900) renderResultsPanel();
+    const u=new URL(location.href);u.searchParams.delete('booth');history.replaceState({},'',u);
+  }
+
+  $('#mapCalloutClose')?.addEventListener('click',clearSelection);
+
   function detailMarkup(b, mobile=false){
     const categories=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
     const logo=safeUrl(b.logo)?`<img src="${esc(safeUrl(b.logo))}" alt="" style="display:block;max-width:160px;max-height:62px;object-fit:contain;margin:18px 0">`:'';
@@ -323,10 +380,7 @@
   }
 
   function bindDetail(root){
-    $('[data-back-results]',root)?.addEventListener('click', () => {
-      state.selected=null; update2DState(); update3DState(); renderResultsPanel();
-      const u=new URL(location.href);u.searchParams.delete('booth');history.replaceState({},'',u);
-    });
+    $('[data-back-results]',root)?.addEventListener('click', clearSelection);
     $('[data-share-booth]',root)?.addEventListener('click', e => shareBooth(e.currentTarget.dataset.shareBooth));
     $('[data-show-map]',root)?.addEventListener('click', e => {
       const b=byId.get(e.currentTarget.dataset.showMap); if(!b)return;
@@ -351,6 +405,7 @@
     state.selected=id;
     update2DState(); update3DState();
     if (innerWidth>900) {
+      showMapCallout(b);
       if ($('#sidePanel').classList.contains('is-collapsed')) $('#panelToggle').click();
       showDesktopDetail(b);
     } else {
@@ -404,8 +459,8 @@
     if(state.view===view)return;state.view=view;
     $$('[data-view]').forEach(b=>b.classList.toggle('is-active',b.dataset.view===view));
     map2d.classList.toggle('is-active',view==='2d');map3d.classList.toggle('is-active',view==='3d');
-    if(view==='3d') ensureThree().then(()=>{update3DState(); if(state.selected)focusBooth3D(byId.get(state.selected));else fitHall3D(state.hall);});
-    else {if(state.selected)focusBooth2D(byId.get(state.selected));else fitHall(state.hall);}
+    if(view==='3d') ensureThree().then(()=>{update3DState(); if(state.selected){focusBooth3D(byId.get(state.selected));showMapCallout(byId.get(state.selected));}else fitHall3D(state.hall);});
+    else {if(state.selected){focusBooth2D(byId.get(state.selected));showMapCallout(byId.get(state.selected));}else fitHall(state.hall);}
   }
 
   $('#resetView').addEventListener('click',()=> state.view==='2d'?fitHall(state.hall):fitHall3D(state.hall));
@@ -428,7 +483,7 @@
     const parts=text.split('\n');parts.forEach((line,i)=>ctx.fillText(line,c.width/2,parts.length===1?48:34+i*34));
     const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;
     const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
-    const sp=new THREE.Sprite(mat);sp.scale.set(58,14,1);return sp;
+    const sp=new THREE.Sprite(mat);sp.scale.set(34,9,1);return sp;
   }
 
   function buildThree(){
@@ -502,8 +557,8 @@
       mesh.userData.edges=edges;
 
       scene.add(mesh);meshes.set(b.id,mesh);
-      const label=labelSprite(`${b.id}\n${b.brand.length>14?b.brand.slice(0,13)+'…':b.brand}`);
-      label.position.set(mesh.position.x,boothHeight+8,mesh.position.z);
+      const label=labelSprite(b.id);
+      label.position.set(mesh.position.x,boothHeight+7,mesh.position.z);
       scene.add(label);labels.set(b.id,label);
     });
     const raycaster=new T.Raycaster(),pointer=new T.Vector2();
@@ -518,14 +573,14 @@
     });
     state.three={scene,camera,renderer,controls,meshes,labels,cx,cy};
     fitHall3D(state.hall);update3DState();
-    const loop=()=>{if(!state.three)return;controls.update();const dist=camera.position.distanceTo(controls.target);labels.forEach(sp=>{sp.scale.set(dist<480?72:50,dist<480?18:12,1)});renderer.render(scene,camera);requestAnimationFrame(loop)};loop();
+    const loop=()=>{if(!state.three)return;controls.update();const dist=camera.position.distanceTo(controls.target);labels.forEach(sp=>{sp.scale.set(dist<480?40:30,dist<480?10:8,1)});if(state.selected&&state.view==='3d')updateMapCalloutPosition();renderer.render(scene,camera);requestAnimationFrame(loop)};loop();
     return state.three;
   }
 
   function resizeThree(){
     if(!state.three)return;const r=map3d.getBoundingClientRect();state.three.camera.aspect=Math.max(r.width,1)/Math.max(r.height,1);state.three.camera.updateProjectionMatrix();state.three.renderer.setSize(r.width,r.height);
   }
-  addEventListener('resize',resizeThree);
+  addEventListener('resize',()=>{resizeThree();if(state.selected)requestAnimationFrame(updateMapCalloutPosition)});
 
   function update3DState(){
     if(!state.three)return;
