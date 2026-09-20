@@ -539,7 +539,7 @@
       });
       if(mesh.userData.edges){
         mesh.userData.edges.material.color.setHex(selected?0x050505:0xb9b9b2);
-        mesh.userData.edges.material.opacity=selected?.34:.72;
+        mesh.userData.edges.material.opacity=selected ? .34 : .72;
       }
       const label=state.three.labels.get(id);
       if(label){
