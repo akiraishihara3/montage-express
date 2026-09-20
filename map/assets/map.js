@@ -424,7 +424,7 @@
 
   function labelSprite(text){
     const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=384;c.height=96;
-    ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#111';ctx.font='700 26px -apple-system,BlinkMacSystemFont,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='700 26px -apple-system,BlinkMacSystemFont,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
     const parts=text.split('\n');parts.forEach((line,i)=>ctx.fillText(line,c.width/2,parts.length===1?48:34+i*34));
     const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;
     const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
@@ -433,20 +433,78 @@
 
   function buildThree(){
     const T=window.THREE, rect=map3d.getBoundingClientRect();
-    const scene=new T.Scene();scene.background=new T.Color(0xf1f1ec);
+    const scene=new T.Scene();scene.background=new T.Color(0xeeeeea);
     const camera=new T.PerspectiveCamera(43,Math.max(rect.width,1)/Math.max(rect.height,1),1,3500);
-    const renderer=new T.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(rect.width,rect.height);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;map3d.innerHTML='';map3d.appendChild(renderer.domElement);
-    const controls=new T.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.screenSpacePanning=true;controls.minDistance=70;controls.maxDistance=1200;controls.maxPolarAngle=Math.PI*.49;
-    scene.add(new T.HemisphereLight(0xffffff,0xd9d9d2,1.35));const dl=new T.DirectionalLight(0xffffff,.75);dl.position.set(-160,260,120);dl.castShadow=true;scene.add(dl);
+    const renderer=new T.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+    renderer.setSize(rect.width,rect.height);
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=T.PCFSoftShadowMap;
+    if(T.sRGBEncoding) renderer.outputEncoding=T.sRGBEncoding;
+    if(T.ACESFilmicToneMapping) renderer.toneMapping=T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.05;
+    map3d.innerHTML='';map3d.appendChild(renderer.domElement);
+
+    const controls=new T.OrbitControls(camera,renderer.domElement);
+    controls.enableDamping=true;controls.dampingFactor=.075;controls.screenSpacePanning=true;
+    controls.minDistance=70;controls.maxDistance=1200;controls.maxPolarAngle=Math.PI*.49;
+
+    // Architectural-model lighting: soft ambient + strong diagonal key + gentle fill.
+    scene.add(new T.AmbientLight(0xffffff,.34));
+    scene.add(new T.HemisphereLight(0xffffff,0xc9c9c2,.58));
+    const dl=new T.DirectionalLight(0xffffff,1.42);
+    dl.position.set(-230,360,210);
+    dl.castShadow=true;
+    dl.shadow.mapSize.set(2048,2048);
+    dl.shadow.bias=-0.00018;
+    dl.shadow.normalBias=0.02;
+    dl.shadow.camera.near=20;
+    dl.shadow.camera.far=1400;
+    dl.shadow.camera.left=-760;
+    dl.shadow.camera.right=760;
+    dl.shadow.camera.top=460;
+    dl.shadow.camera.bottom=-460;
+    scene.add(dl);
+    const fill=new T.DirectionalLight(0xffffff,.34);
+    fill.position.set(260,170,-260);
+    scene.add(fill);
+
     const cx=data.bounds.x+data.bounds.w/2, cy=data.bounds.y+data.bounds.h/2;
-    const floor=new T.Mesh(new T.PlaneGeometry(data.bounds.w+80,data.bounds.h+80),new T.MeshStandardMaterial({color:0xe8e8e2,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.8;floor.receiveShadow=true;scene.add(floor);
+    const floorMat=new T.MeshStandardMaterial({color:0xd8d8d2,roughness:1,metalness:0});
+    const floor=new T.Mesh(new T.PlaneGeometry(data.bounds.w+120,data.bounds.h+120),floorMat);
+    floor.rotation.x=-Math.PI/2;floor.position.y=-1;floor.receiveShadow=true;scene.add(floor);
+
     const meshes=new Map(),labels=new Map();
-    const boothHeight=34; // standard 2m x 2m booth footprint maps to 34 x 34 units, so 34 units = 2m height
+    const boothHeight=34; // 34 map units = standard 2m, so 2m x 2m booth reads as a 2m cube.
+
+    const makeBoothMaterials=()=>[
+      new T.MeshStandardMaterial({color:0xd7d7d1,roughness:.96,metalness:0}), // right
+      new T.MeshStandardMaterial({color:0xe1e1dc,roughness:.96,metalness:0}), // left
+      new T.MeshStandardMaterial({color:0xf7f7f3,roughness:.91,metalness:0}), // top
+      new T.MeshStandardMaterial({color:0xd0d0ca,roughness:.98,metalness:0}), // bottom
+      new T.MeshStandardMaterial({color:0xe9e9e4,roughness:.95,metalness:0}), // front
+      new T.MeshStandardMaterial({color:0xddddD7,roughness:.96,metalness:0})  // back
+    ];
+
     data.booths.forEach(b=>{
       const geo=new T.BoxGeometry(Math.max(b.w,4),boothHeight,Math.max(b.h,4));
-      const mat=new T.MeshStandardMaterial({color:0xfbfbf8,roughness:.9,metalness:0});
-      const mesh=new T.Mesh(geo,mat);mesh.position.set(b.x+b.w/2-cx,boothHeight/2,b.y+b.h/2-cy);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.boothId=b.id;scene.add(mesh);meshes.set(b.id,mesh);
-      const label=labelSprite(`${b.id}\n${b.brand.length>14?b.brand.slice(0,13)+'…':b.brand}`);label.position.set(mesh.position.x,boothHeight+7,mesh.position.z);scene.add(label);labels.set(b.id,label);
+      const mesh=new T.Mesh(geo,makeBoothMaterials());
+      mesh.position.set(b.x+b.w/2-cx,boothHeight/2,b.y+b.h/2-cy);
+      mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.boothId=b.id;
+
+      // A restrained grey outline keeps white booths legible even from a high camera angle.
+      const edges=new T.LineSegments(
+        new T.EdgesGeometry(geo),
+        new T.LineBasicMaterial({color:0xb9b9b2,transparent:true,opacity:.72})
+      );
+      edges.renderOrder=2;
+      mesh.add(edges);
+      mesh.userData.edges=edges;
+
+      scene.add(mesh);meshes.set(b.id,mesh);
+      const label=labelSprite(`${b.id}\n${b.brand.length>14?b.brand.slice(0,13)+'…':b.brand}`);
+      label.position.set(mesh.position.x,boothHeight+8,mesh.position.z);
+      scene.add(label);labels.set(b.id,label);
     });
     const raycaster=new T.Raycaster(),pointer=new T.Vector2();
     let pickStart=null;
@@ -471,11 +529,23 @@
 
   function update3DState(){
     if(!state.three)return;
+    const normalFaces=[0xd7d7d1,0xe1e1dc,0xf7f7f3,0xd0d0ca,0xe9e9e4,0xddddD7];
     state.three.meshes.forEach((mesh,id)=>{
       const b=byId.get(id),selected=state.selected===id,visible=matches(b);
-      mesh.material.color.setHex(selected?0x11110f:0xfbfbf8);
-      mesh.material.transparent=false;mesh.material.opacity=1;
-      const label=state.three.labels.get(id);if(label){label.material.opacity=visible?1:.2;label.material.color.setHex(selected?0xffffff:0x11110f);}
+      const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+      materials.forEach((mat,i)=>{
+        mat.color.setHex(selected?0x11110f:(normalFaces[i]||0xe9e9e4));
+        mat.transparent=false;mat.opacity=1;mat.needsUpdate=true;
+      });
+      if(mesh.userData.edges){
+        mesh.userData.edges.material.color.setHex(selected?0x050505:0xb9b9b2);
+        mesh.userData.edges.material.opacity=selected?.34:.72;
+      }
+      const label=state.three.labels.get(id);
+      if(label){
+        label.material.opacity=visible?1:.2;
+        label.material.color.setHex(selected?0xffffff:0x11110f);
+      }
     });
   }
 
