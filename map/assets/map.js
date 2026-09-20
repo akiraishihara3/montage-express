@@ -683,10 +683,9 @@
       const label=state.three.labels.get(id);
       if(label){
         label.userData.selected=selected;
-        const brand=(b.brand||'').length>15?(b.brand||'').slice(0,14)+'…':(b.brand||'');
-        label.userData.setText(selected?`${b.id}\n${brand}`:b.id);
-        label.material.opacity=visible?1:.2;
-        label.material.color.setHex(selected?0xffffff:0x11110f);
+        label.userData.setText(b.id);
+        label.material.opacity=selected?0:(visible?1:.2);
+        label.material.color.setHex(0x11110f);
       }
     });
   }
