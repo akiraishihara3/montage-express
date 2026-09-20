@@ -73,6 +73,9 @@
   const mapCalloutCompany = $('#mapCalloutCompany');
   const mapCalloutTags = $('#mapCalloutTags');
   const mapCalloutShare = $('#mapCalloutShare');
+  const mapConnector = $('#mapConnector');
+  const mapConnectorLine = $('#mapConnectorLine');
+  const mapConnectorDot = $('#mapConnectorDot');
 
   $('#dataStatus').textContent = data.dataStatus || '';
 
@@ -308,50 +311,108 @@
     mapCalloutTags.innerHTML=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
     if(mapCalloutShare) mapCalloutShare.dataset.shareBooth=b.id;
     mapCallout.hidden=false;
+    if(mapConnector) mapConnector.hidden=false;
     requestAnimationFrame(updateMapCalloutPosition);
   }
 
   function hideMapCallout(){
     if(mapCallout) mapCallout.hidden=true;
+    if(mapConnector) mapConnector.hidden=true;
+  }
+
+  function getSelectedAnchor(){
+    if(!state.selected) return null;
+    const b=byId.get(state.selected); if(!b) return null;
+    const stageRect=stage.getBoundingClientRect();
+
+    if(state.view==='3d' && state.three){
+      const t=state.three,mesh=t.meshes.get(b.id);if(!mesh)return null;
+      const p=new THREE.Vector3(mesh.position.x,34,mesh.position.z);
+      p.project(t.camera);
+      if(p.z<-1||p.z>1)return null;
+      const canvasRect=t.renderer.domElement.getBoundingClientRect();
+      return {
+        x:(canvasRect.left-stageRect.left)+(p.x*.5+.5)*canvasRect.width,
+        y:(canvasRect.top-stageRect.top)+(-p.y*.5+.5)*canvasRect.height
+      };
+    }
+
+    if(state.view==='2d'){
+      const ctm=svg.getScreenCTM();if(!ctm)return null;
+      const p=svg.createSVGPoint();p.x=b.x+b.w/2;p.y=b.y+b.h/2;
+      const s=p.matrixTransform(ctm);
+      return {x:s.x-stageRect.left,y:s.y-stageRect.top};
+    }
+    return null;
+  }
+
+  function nearestPointOnCard(anchor,left,top,w,h){
+    const right=left+w,bottom=top+h;
+    let x=clamp(anchor.x,left,right);
+    let y=clamp(anchor.y,top,bottom);
+
+    // If the anchor falls inside the card rectangle, force the connector
+    // to the nearest card edge instead of letting the line disappear.
+    if(anchor.x>=left&&anchor.x<=right&&anchor.y>=top&&anchor.y<=bottom){
+      const distances=[
+        {edge:'left',d:anchor.x-left},
+        {edge:'right',d:right-anchor.x},
+        {edge:'top',d:anchor.y-top},
+        {edge:'bottom',d:bottom-anchor.y}
+      ].sort((a,b)=>a.d-b.d);
+      const edge=distances[0].edge;
+      if(edge==='left')x=left;
+      if(edge==='right')x=right;
+      if(edge==='top')y=top;
+      if(edge==='bottom')y=bottom;
+    }
+    return {x,y};
   }
 
   function updateMapCalloutPosition(){
-    if(!mapCallout || mapCallout.hidden || !state.selected || innerWidth<=640) return;
-    const b=byId.get(state.selected); if(!b) return;
-    const stageRect=stage.getBoundingClientRect();
-    let anchorX=null,anchorY=null;
+    if(!mapCallout||mapCallout.hidden||!state.selected||innerWidth<=640)return;
+    const anchor=getSelectedAnchor();if(!anchor)return;
 
-    if(state.view==='3d' && state.three){
-      const t=state.three, mesh=t.meshes.get(b.id); if(!mesh) return;
-      const p=new THREE.Vector3(mesh.position.x,38,mesh.position.z);
-      p.project(t.camera);
-      if(p.z < -1 || p.z > 1) return;
-      const canvasRect=t.renderer.domElement.getBoundingClientRect();
-      anchorX=(canvasRect.left-stageRect.left)+(p.x*.5+.5)*canvasRect.width;
-      anchorY=(canvasRect.top-stageRect.top)+(-p.y*.5+.5)*canvasRect.height;
-    }else if(state.view==='2d'){
-      const ctm=svg.getScreenCTM(); if(!ctm) return;
-      const p=svg.createSVGPoint();p.x=b.x+b.w/2;p.y=b.y;
-      const s=p.matrixTransform(ctm);
-      anchorX=s.x-stageRect.left;anchorY=s.y-stageRect.top;
+    const stageRect=stage.getBoundingClientRect();
+    const cardW=mapCallout.offsetWidth||260;
+    const cardH=mapCallout.offsetHeight||210;
+    const pad=16,gap=44;
+
+    const spaceRight=stageRect.width-anchor.x;
+    const spaceLeft=anchor.x;
+    const spaceBelow=stageRect.height-anchor.y;
+
+    let left,top;
+    if(spaceRight>=cardW+gap+pad){
+      left=anchor.x+gap;
+      top=anchor.y-cardH*.45;
+    }else if(spaceLeft>=cardW+gap+pad){
+      left=anchor.x-cardW-gap;
+      top=anchor.y-cardH*.45;
+    }else if(spaceBelow>=cardH+gap+pad){
+      left=anchor.x-cardW/2;
+      top=anchor.y+gap;
+    }else{
+      left=anchor.x-cardW/2;
+      top=anchor.y-cardH-gap;
     }
 
-    if(anchorX===null||anchorY===null)return;
-    const cardW=mapCallout.offsetWidth||286;
-    const cardH=mapCallout.offsetHeight||278;
-    const sidePad=16;
-
-    // Offset the card slightly right of the booth, like a museum-map callout,
-    // while letting the tail point back to the selected booth.
-    let left=anchorX+92-cardW/2;
-    left=clamp(left,sidePad,Math.max(sidePad,stageRect.width-cardW-sidePad));
-    let top=anchorY-cardH-28;
-    top=clamp(top,16,Math.max(16,stageRect.height-cardH-40));
-
-    const tailX=clamp(anchorX-left,24,cardW-24);
+    left=clamp(left,pad,Math.max(pad,stageRect.width-cardW-pad));
+    top=clamp(top,pad,Math.max(pad,stageRect.height-cardH-pad));
     mapCallout.style.left=`${left}px`;
     mapCallout.style.top=`${top}px`;
-    mapCallout.style.setProperty('--tail-x',`${tailX}px`);
+
+    const endPoint=nearestPointOnCard(anchor,left,top,cardW,cardH);
+    if(mapConnectorLine){
+      mapConnectorLine.setAttribute('x1',anchor.x);
+      mapConnectorLine.setAttribute('y1',anchor.y);
+      mapConnectorLine.setAttribute('x2',endPoint.x);
+      mapConnectorLine.setAttribute('y2',endPoint.y);
+    }
+    if(mapConnectorDot){
+      mapConnectorDot.setAttribute('cx',anchor.x);
+      mapConnectorDot.setAttribute('cy',anchor.y);
+    }
   }
 
   function clearSelection(){
@@ -612,12 +673,12 @@
       const b=byId.get(id),selected=state.selected===id,visible=matches(b);
       const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
       materials.forEach((mat,i)=>{
-        mat.color.setHex(selected?0x6b6b64:(normalFaces[i]||0xe9e9e4));
+        mat.color.setHex(selected?0x11110f:(normalFaces[i]||0xe9e9e4));
         mat.transparent=false;mat.opacity=1;mat.needsUpdate=true;
       });
       if(mesh.userData.edges){
-        mesh.userData.edges.material.color.setHex(selected?0x4f4f4a:0xb9b9b2);
-        mesh.userData.edges.material.opacity=selected ? .34 : .72;
+        mesh.userData.edges.material.color.setHex(selected?0x050505:0xb9b9b2);
+        mesh.userData.edges.material.opacity=selected ? .5 : .72;
       }
       const label=state.three.labels.get(id);
       if(label){
