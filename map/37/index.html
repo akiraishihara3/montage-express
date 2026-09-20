@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>37 / EXHIBITOR MAP — MONTAGE</title>
-<meta name="description" content="MONTAGE 37th exhibition interactive exhibitor map. Search booths, switch 2D/3D views, and save exhibitors to My List.">
-<link rel="stylesheet" href="../assets/map.css?v=20260920-1">
+<meta name="description" content="MONTAGE 37th exhibition interactive exhibitor map. Search booths and switch between interactive 2D and 3D exhibition views.">
+<link rel="stylesheet" href="../assets/map.css?v=20260920-2">
 </head>
 <body>
 <header class="mapHeader">
@@ -56,7 +56,6 @@
     </div>
 
     <div class="sidePanel__foot">
-      <button class="shareListBtn" type="button" data-open-mylist>♥ <span data-saved-count>0</span> / MY LIST</button>
       <small id="dataStatus">PROTOTYPE DATA</small>
     </div>
   </aside>
@@ -96,7 +95,6 @@
     </div>
 
     <button class="resetView" id="resetView" type="button">RESET VIEW</button>
-    <button class="myListFab" type="button" data-open-mylist>♥ <span data-saved-count>0</span></button>
   </section>
 </main>
 
@@ -120,12 +118,6 @@
   </div>
 </section>
 
-<section class="bottomSheet listSheet" id="listSheet" aria-hidden="true">
-  <div class="sheetHandle"></div>
-  <button class="sheetClose" type="button" data-close-sheet>×</button>
-  <div id="listSheetContent"></div>
-</section>
-
 <section class="bottomSheet shareSheet" id="shareSheet" aria-hidden="true">
   <div class="sheetHandle"></div>
   <button class="sheetClose" type="button" data-close-sheet>×</button>
@@ -133,6 +125,6 @@
 </section>
 
 <script src="../data/37/data.js?v=20260920-1"></script>
-<script src="../assets/map.js?v=20260920-1" defer></script>
+<script src="../assets/map.js?v=20260920-2" defer></script>
 </body>
 </html>
