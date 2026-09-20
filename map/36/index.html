@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>36 / EXHIBITOR MAP — MONTAGE</title>
+<meta name="description" content="MONTAGE 36th exhibition interactive exhibitor map. Search booths and switch between interactive 2D and 3D exhibition views.">
+<link rel="stylesheet" href="../assets/map.css?v=20260920-5">
+</head>
+<body>
+<header class="mapHeader">
+  <a class="mapBrand" href="../../" aria-label="MONTAGE home">MONTAGE</a>
+  <div class="mapHeader__meta">
+    <label class="editionPicker" aria-label="Edition">
+      <select id="editionSelect">
+        <option value="36" selected>36</option>
+        <option value="archive">ARCHIVE</option>
+      </select>
+    </label>
+    <span>/</span><span>EXHIBITOR MAP</span>
+  </div>
+  <a class="mapHeader__back" href="../../">HOME ↗</a>
+</header>
+
+<main class="mapApp">
+  <aside class="sidePanel" id="sidePanel">
+    <div class="sidePanel__head">
+      <p class="eyebrow">36 / EXHIBITOR MAP</p>
+      <h1>Find what<br>matters.</h1>
+      <p class="sidePanel__meta">2027.02.24 WED – 02.26 FRI<br>HAMAMATSUCHO-KAN 4F / TOKYO</p>
+    </div>
+
+    <div class="searchBlock">
+      <label class="searchField">
+        <span>SEARCH</span>
+        <input type="search" data-search placeholder="Brand, company or booth" autocomplete="off">
+        <button type="button" class="searchClear" data-search-clear aria-label="Clear search">×</button>
+      </label>
+      <div class="searchSuggestions" id="desktopSuggestions"></div>
+    </div>
+
+    <div class="hallTabs" data-hall-tabs>
+      <button class="is-active" data-hall="ALL">ALL</button>
+      <button data-hall="WEST">WEST</button>
+      <button data-hall="EAST">EAST</button>
+    </div>
+
+    <div class="categoryBlock">
+      <div class="sectionLabel"><span>CATEGORY</span><button type="button" data-clear-filters>CLEAR</button></div>
+      <div class="categoryChips" id="desktopCategories"></div>
+    </div>
+
+    <div class="panelBody" id="desktopPanelBody">
+      <div class="resultHead"><span>EXHIBITORS</span><strong id="desktopResultCount">0</strong></div>
+      <div class="resultList" id="desktopResults"></div>
+    </div>
+
+    <div class="sidePanel__foot">
+      <small id="dataStatus">PROTOTYPE DATA</small>
+    </div>
+  </aside>
+
+  <button class="panelToggle" id="panelToggle" type="button" aria-label="Toggle side panel">←</button>
+
+  <section class="mapStage" id="mapStage">
+    <div class="mobileControls">
+      <label class="mobileSearch">
+        <input type="search" data-search placeholder="Brand, company or booth" autocomplete="off">
+        <button type="button" data-search-clear aria-label="Clear search">×</button>
+      </label>
+      <div class="mobileControls__row">
+        <div class="hallTabs hallTabs--mobile" data-hall-tabs>
+          <button class="is-active" data-hall="ALL">ALL</button>
+          <button data-hall="WEST">WEST</button>
+          <button data-hall="EAST">EAST</button>
+        </div>
+        <button class="filterBtn" type="button" id="filterBtn">FILTER <span id="filterCount"></span></button>
+      </div>
+      <div class="searchSuggestions searchSuggestions--mobile" id="mobileSuggestions"></div>
+    </div>
+
+    <div class="viewToggle" aria-label="Map view">
+      <button class="is-active" type="button" data-view="2d">2D</button>
+      <button type="button" data-view="3d">3D</button>
+    </div>
+
+    <div class="mapViewport is-active" id="map2d" aria-label="2D exhibitor map">
+      <svg id="mapSvg" role="img" aria-label="Interactive exhibition floor map"></svg>
+    </div>
+    <div class="mapViewport mapViewport--3d" id="map3d" aria-label="3D exhibitor map"></div>
+
+    <svg class="mapConnector" id="mapConnector" hidden aria-hidden="true">
+      <line id="mapConnectorLine" x1="0" y1="0" x2="0" y2="0"></line>
+      <circle id="mapConnectorDot" cx="0" cy="0" r="4"></circle>
+    </svg>
+
+    <aside class="mapCallout" id="mapCallout" hidden aria-live="polite">
+      <button class="mapCallout__close" type="button" id="mapCalloutClose" aria-label="Close booth information">×</button>
+      <p class="mapCallout__id" id="mapCalloutId"></p>
+      <strong class="mapCallout__brand" id="mapCalloutBrand"></strong>
+      <span class="mapCallout__company" id="mapCalloutCompany"></span>
+      <div class="mapCallout__tags" id="mapCalloutTags"></div>
+      <button class="mapCallout__share" type="button" id="mapCalloutShare">SHARE ↗</button>
+    </aside>
+
+    <div class="mapLegend">
+      <span><i class="legendBox legendBox--normal"></i> BOOTH</span>
+      <span><i class="legendBox legendBox--selected"></i> SELECTED</span>
+    </div>
+
+    <button class="resetView" id="resetView" type="button">RESET VIEW</button>
+  </section>
+</main>
+
+<div class="sheetBackdrop" id="sheetBackdrop"></div>
+
+<section class="bottomSheet detailSheet" id="detailSheet" aria-hidden="true">
+  <div class="sheetHandle"></div>
+  <button class="sheetClose" type="button" data-close-sheet>×</button>
+  <div id="mobileDetail"></div>
+</section>
+
+<section class="bottomSheet filterSheet" id="filterSheet" aria-hidden="true">
+  <div class="sheetHandle"></div>
+  <button class="sheetClose" type="button" data-close-sheet>×</button>
+  <p class="eyebrow">FILTER / CATEGORY</p>
+  <h2>What are you<br>looking for?</h2>
+  <div class="filterSheet__chips" id="mobileCategories"></div>
+  <div class="filterSheet__actions">
+    <button type="button" class="button button--ghost" data-clear-filters>CLEAR</button>
+    <button type="button" class="button button--dark" id="applyFilters">APPLY</button>
+  </div>
+</section>
+
+<section class="bottomSheet shareSheet" id="shareSheet" aria-hidden="true">
+  <div class="sheetHandle"></div>
+  <button class="sheetClose" type="button" data-close-sheet>×</button>
+  <div id="shareSheetContent"></div>
+</section>
+
+<script src="../data/36/data.js?v=20260920-1"></script>
+<script src="../assets/map.js?v=20260920-6" defer></script>
+</body>
+</html>
