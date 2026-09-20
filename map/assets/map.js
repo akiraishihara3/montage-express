@@ -72,6 +72,7 @@
   const mapCalloutBrand = $('#mapCalloutBrand');
   const mapCalloutCompany = $('#mapCalloutCompany');
   const mapCalloutTags = $('#mapCalloutTags');
+  const mapCalloutShare = $('#mapCalloutShare');
 
   $('#dataStatus').textContent = data.dataStatus || '';
 
@@ -300,11 +301,12 @@
   }
 
   function showMapCallout(b){
-    if(!mapCallout || innerWidth<=900) return;
+    if(!mapCallout || innerWidth<=640) return;
     mapCalloutId.textContent=`${b.id} / ${b.hall} HALL`;
     mapCalloutBrand.textContent=b.brand || '';
     mapCalloutCompany.textContent=b.company || '';
     mapCalloutTags.innerHTML=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
+    if(mapCalloutShare) mapCalloutShare.dataset.shareBooth=b.id;
     mapCallout.hidden=false;
     requestAnimationFrame(updateMapCalloutPosition);
   }
@@ -314,32 +316,42 @@
   }
 
   function updateMapCalloutPosition(){
-    if(!mapCallout || mapCallout.hidden || !state.selected || innerWidth<=900) return;
+    if(!mapCallout || mapCallout.hidden || !state.selected || innerWidth<=640) return;
     const b=byId.get(state.selected); if(!b) return;
     const stageRect=stage.getBoundingClientRect();
-    let x=null,y=null;
+    let anchorX=null,anchorY=null;
 
     if(state.view==='3d' && state.three){
       const t=state.three, mesh=t.meshes.get(b.id); if(!mesh) return;
-      const p=new THREE.Vector3(mesh.position.x,34+4,mesh.position.z);
+      const p=new THREE.Vector3(mesh.position.x,38,mesh.position.z);
       p.project(t.camera);
-      if(p.z < -1 || p.z > 1){ mapCallout.hidden=true; return; }
+      if(p.z < -1 || p.z > 1) return;
       const canvasRect=t.renderer.domElement.getBoundingClientRect();
-      x=(canvasRect.left-stageRect.left)+(p.x*.5+.5)*canvasRect.width;
-      y=(canvasRect.top-stageRect.top)+(-p.y*.5+.5)*canvasRect.height;
+      anchorX=(canvasRect.left-stageRect.left)+(p.x*.5+.5)*canvasRect.width;
+      anchorY=(canvasRect.top-stageRect.top)+(-p.y*.5+.5)*canvasRect.height;
     }else if(state.view==='2d'){
       const ctm=svg.getScreenCTM(); if(!ctm) return;
       const p=svg.createSVGPoint();p.x=b.x+b.w/2;p.y=b.y;
       const s=p.matrixTransform(ctm);
-      x=s.x-stageRect.left;y=s.y-stageRect.top;
+      anchorX=s.x-stageRect.left;anchorY=s.y-stageRect.top;
     }
 
-    if(x===null||y===null)return;
-    const pad=168;
-    x=clamp(x,pad,Math.max(pad,stageRect.width-pad));
-    y=clamp(y,130,stageRect.height-30);
-    mapCallout.style.left=`${x}px`;
-    mapCallout.style.top=`${y}px`;
+    if(anchorX===null||anchorY===null)return;
+    const cardW=mapCallout.offsetWidth||286;
+    const cardH=mapCallout.offsetHeight||278;
+    const sidePad=16;
+
+    // Offset the card slightly right of the booth, like a museum-map callout,
+    // while letting the tail point back to the selected booth.
+    let left=anchorX+92-cardW/2;
+    left=clamp(left,sidePad,Math.max(sidePad,stageRect.width-cardW-sidePad));
+    let top=anchorY-cardH-28;
+    top=clamp(top,16,Math.max(16,stageRect.height-cardH-40));
+
+    const tailX=clamp(anchorX-left,24,cardW-24);
+    mapCallout.style.left=`${left}px`;
+    mapCallout.style.top=`${top}px`;
+    mapCallout.style.setProperty('--tail-x',`${tailX}px`);
   }
 
   function clearSelection(){
@@ -351,6 +363,7 @@
   }
 
   $('#mapCalloutClose')?.addEventListener('click',clearSelection);
+  mapCalloutShare?.addEventListener('click',e=>{const id=e.currentTarget.dataset.shareBooth;if(id)shareBooth(id);});
 
   function detailMarkup(b, mobile=false){
     const categories=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
@@ -402,12 +415,11 @@
 
   function selectBooth(id,focus){
     const b=byId.get(id); if(!b)return;
+    if(state.selected===id && !focus){clearSelection();return;}
     state.selected=id;
     update2DState(); update3DState();
-    if (innerWidth>900) {
+    if (innerWidth>640) {
       showMapCallout(b);
-      if ($('#sidePanel').classList.contains('is-collapsed')) $('#panelToggle').click();
-      showDesktopDetail(b);
     } else {
       $('#mobileDetail').innerHTML=detailMarkup(b,true); bindDetail($('#mobileDetail')); openSheet($('#detailSheet'));
     }
@@ -478,12 +490,23 @@
   }
 
   function labelSprite(text){
-    const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=384;c.height=96;
-    ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.font='700 26px -apple-system,BlinkMacSystemFont,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
-    const parts=text.split('\n');parts.forEach((line,i)=>ctx.fillText(line,c.width/2,parts.length===1?48:34+i*34));
+    const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=384;c.height=112;
     const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;
     const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
-    const sp=new THREE.Sprite(mat);sp.scale.set(34,9,1);return sp;
+    const sp=new THREE.Sprite(mat);
+    sp.userData.currentText='';
+    sp.userData.setText=value=>{
+      if(sp.userData.currentText===value)return;
+      sp.userData.currentText=value;
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.fillStyle='#fff';ctx.font='700 27px -apple-system,BlinkMacSystemFont,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+      const parts=String(value).split('\n');
+      parts.forEach((line,i)=>ctx.fillText(line,c.width/2,parts.length===1?56:38+i*38));
+      tex.needsUpdate=true;
+    };
+    sp.userData.setText(text);
+    sp.scale.set(34,10,1);
+    return sp;
   }
 
   function buildThree(){
@@ -573,14 +596,14 @@
     });
     state.three={scene,camera,renderer,controls,meshes,labels,cx,cy};
     fitHall3D(state.hall);update3DState();
-    const loop=()=>{if(!state.three)return;controls.update();const dist=camera.position.distanceTo(controls.target);labels.forEach(sp=>{sp.scale.set(dist<480?40:30,dist<480?10:8,1)});if(state.selected&&state.view==='3d')updateMapCalloutPosition();renderer.render(scene,camera);requestAnimationFrame(loop)};loop();
+    const loop=()=>{if(!state.three)return;controls.update();const dist=camera.position.distanceTo(controls.target);labels.forEach(sp=>{const sel=!!sp.userData.selected;sp.scale.set(sel?(dist<480?58:48):(dist<480?38:29),sel?(dist<480?15:13):(dist<480?10:8),1)});if(state.selected&&state.view==='3d')updateMapCalloutPosition();renderer.render(scene,camera);requestAnimationFrame(loop)};loop();
     return state.three;
   }
 
   function resizeThree(){
     if(!state.three)return;const r=map3d.getBoundingClientRect();state.three.camera.aspect=Math.max(r.width,1)/Math.max(r.height,1);state.three.camera.updateProjectionMatrix();state.three.renderer.setSize(r.width,r.height);
   }
-  addEventListener('resize',()=>{resizeThree();if(state.selected)requestAnimationFrame(updateMapCalloutPosition)});
+  addEventListener('resize',()=>{resizeThree();if(state.selected){if(innerWidth>640){showMapCallout(byId.get(state.selected));requestAnimationFrame(updateMapCalloutPosition)}else hideMapCallout();}});
 
   function update3DState(){
     if(!state.three)return;
@@ -589,15 +612,18 @@
       const b=byId.get(id),selected=state.selected===id,visible=matches(b);
       const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
       materials.forEach((mat,i)=>{
-        mat.color.setHex(selected?0x11110f:(normalFaces[i]||0xe9e9e4));
+        mat.color.setHex(selected?0x6b6b64:(normalFaces[i]||0xe9e9e4));
         mat.transparent=false;mat.opacity=1;mat.needsUpdate=true;
       });
       if(mesh.userData.edges){
-        mesh.userData.edges.material.color.setHex(selected?0x050505:0xb9b9b2);
+        mesh.userData.edges.material.color.setHex(selected?0x4f4f4a:0xb9b9b2);
         mesh.userData.edges.material.opacity=selected ? .34 : .72;
       }
       const label=state.three.labels.get(id);
       if(label){
+        label.userData.selected=selected;
+        const brand=(b.brand||'').length>15?(b.brand||'').slice(0,14)+'…':(b.brand||'');
+        label.userData.setText(selected?`${b.id}\n${brand}`:b.id);
         label.material.opacity=visible?1:.2;
         label.material.color.setHex(selected?0xffffff:0x11110f);
       }
