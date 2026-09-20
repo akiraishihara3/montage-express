@@ -54,16 +54,9 @@
 
   const state = {
     hall:'ALL', query:'', categories:new Set(), selected:null, view:'2d',
-    saved:new Set(), shared:new Set(), showSharedPreview:false,
     viewBox:{...data.bounds}, dragging:false, dragMoved:false, dragStart:null,
     panelCollapsed:false, three:null, currentSheet:null
   };
-
-  const storageKey = `montage-map:${data.edition}:saved`;
-  try {
-    const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    if (Array.isArray(saved)) saved.forEach(id => state.saved.add(id));
-  } catch(e){}
 
   const byId = new Map(data.booths.map(b => [b.id,b]));
   const stage = $('#mapStage');
@@ -86,17 +79,6 @@
   }
 
   function filteredBooths(){ return data.booths.filter(matches); }
-
-  function saveState(){
-    try { localStorage.setItem(storageKey, JSON.stringify([...state.saved])); } catch(e){}
-    updateSavedUI();
-    update2DState();
-    update3DState();
-  }
-
-  function updateSavedUI(){
-    $$('[data-saved-count]').forEach(el => el.textContent = state.saved.size);
-  }
 
   function renderCategories(){
     const html = data.categories.map(c => `<button type="button" class="categoryChip" data-category="${esc(c)}">${esc(c)}</button>`).join('');
@@ -211,7 +193,7 @@
     let html = '<g class="floor">';
     Object.entries(data.halls).forEach(([name,h]) => {
       html += `<rect class="hall-outline" x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}"></rect>`;
-      html += `<text class="hall-title" x="${h.x+h.w/2}" y="${h.y+h.h/2}" text-anchor="middle" dominant-baseline="middle">${name} HALL</text>`;
+      html += `<text class="hall-title" x="${h.x+h.w/2}" y="${h.y-12}" text-anchor="middle">${name} HALL</text>`;
     });
     html += `<rect class="facility-mark" x="846" y="153" width="78" height="28" rx="2"></rect>
       <text class="facility-label" x="885" y="169" text-anchor="middle">RECEPTION</text>
@@ -224,15 +206,13 @@
         <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="1"></rect>
         <text class="booth-id" x="${cx}" y="${cy-2}">${b.id}</text>
         <text class="booth-brand" x="${cx}" y="${cy+6}">${esc(brand)}</text>
-        <text class="saved-heart" x="${b.x+b.w-2}" y="${b.y+2}">♥</text>
       </g>`;
     });
     html += '</g>';
     svg.innerHTML = html;
-    $$('.booth',svg).forEach(g => {
+    $('.booth',svg).forEach(g => {
       const activate = () => selectBooth(g.dataset.booth,true);
-      g.addEventListener('click', e => { if (!state.dragMoved) activate(); });
-      g.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') activate(); });
+      g.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); activate(); } });
     });
     setViewBox({...data.bounds});
     update2DState();
@@ -287,6 +267,7 @@
 
   map2d.addEventListener('pointerdown', e => {
     state.dragging=true; state.dragMoved=false;
+    state.pointerDownBooth=e.target.closest?.('.booth')?.dataset.booth || null;
     state.dragStart={clientX:e.clientX,clientY:e.clientY,view:{...state.viewBox}};
     map2d.setPointerCapture?.(e.pointerId);
   });
@@ -295,23 +276,26 @@
     const r=map2d.getBoundingClientRect();
     const dx=(e.clientX-state.dragStart.clientX)/r.width*state.dragStart.view.w;
     const dy=(e.clientY-state.dragStart.clientY)/r.height*state.dragStart.view.h;
-    if(Math.abs(e.clientX-state.dragStart.clientX)+Math.abs(e.clientY-state.dragStart.clientY)>5) state.dragMoved=true;
+    if(Math.abs(e.clientX-state.dragStart.clientX)+Math.abs(e.clientY-state.dragStart.clientY)>10) state.dragMoved=true;
     setViewBox({...state.dragStart.view,x:state.dragStart.view.x-dx,y:state.dragStart.view.y-dy});
   });
-  const endDrag=()=>{state.dragging=false;setTimeout(()=>state.dragMoved=false,0)};
-  map2d.addEventListener('pointerup',endDrag); map2d.addEventListener('pointercancel',endDrag);
+  const endDrag=(e)=>{
+    const clickedBooth = state.dragging && !state.dragMoved ? state.pointerDownBooth : null;
+    state.dragging=false; state.dragMoved=false; state.pointerDownBooth=null;
+    if(clickedBooth) selectBooth(clickedBooth,true);
+  };
+  const cancelDrag=()=>{state.dragging=false;state.dragMoved=false;state.pointerDownBooth=null};
+  map2d.addEventListener('pointerup',endDrag); map2d.addEventListener('pointercancel',cancelDrag);
 
   function update2DState(){
     $$('.booth',svg).forEach(g => {
       const b=byId.get(g.dataset.booth); if(!b)return;
       g.classList.toggle('is-dim',!matches(b));
       g.classList.toggle('is-selected',state.selected===b.id);
-      g.classList.toggle('is-saved',state.saved.has(b.id)||state.shared.has(b.id));
     });
   }
 
   function detailMarkup(b, mobile=false){
-    const saved=state.saved.has(b.id);
     const categories=(b.categories||[]).map(c=>`<span>${esc(c)}</span>`).join('');
     const logo=safeUrl(b.logo)?`<img src="${esc(safeUrl(b.logo))}" alt="" style="display:block;max-width:160px;max-height:62px;object-fit:contain;margin:18px 0">`:'';
     const desc=b.description?`<p style="margin:18px 0 0;font-size:11px;line-height:1.7;color:#666">${esc(b.description)}</p>`:'';
@@ -329,7 +313,6 @@
       <div class="detailTags">${categories}</div>
       ${desc}
       <div class="detailActions">
-        <button class="button ${saved?'button--dark':''}" type="button" data-save-id="${b.id}">${saved?'♥ SAVED':'♡ SAVE'}</button>
         <button class="button" type="button" data-share-booth="${b.id}">SHARE ↗</button>
       </div>
       <div class="detailLinks">
@@ -344,7 +327,6 @@
       state.selected=null; update2DState(); update3DState(); renderResultsPanel();
       const u=new URL(location.href);u.searchParams.delete('booth');history.replaceState({},'',u);
     });
-    $('[data-save-id]',root)?.addEventListener('click', e => toggleSave(e.currentTarget.dataset.saveId));
     $('[data-share-booth]',root)?.addEventListener('click', e => shareBooth(e.currentTarget.dataset.shareBooth));
     $('[data-show-map]',root)?.addEventListener('click', e => {
       const b=byId.get(e.currentTarget.dataset.showMap); if(!b)return;
@@ -375,18 +357,7 @@
       $('#mobileDetail').innerHTML=detailMarkup(b,true); bindDetail($('#mobileDetail')); openSheet($('#detailSheet'));
     }
     if(focus) state.view==='2d'?focusBooth2D(b):focusBooth3D(b);
-    const u=new URL(location.href);u.searchParams.set('booth',id);u.searchParams.delete('list');history.replaceState({},'',u);
-  }
-
-  function toggleSave(id){
-    state.saved.has(id)?state.saved.delete(id):state.saved.add(id);
-    saveState();
-    const b=byId.get(id);
-    if(state.selected===id){
-      if(innerWidth>900)showDesktopDetail(b);
-      else {$('#mobileDetail').innerHTML=detailMarkup(b,true);bindDetail($('#mobileDetail'));}
-    }
-    if(state.currentSheet===$('#listSheet')) renderMyList();
+    const u=new URL(location.href);u.searchParams.set('booth',id);history.replaceState({},'',u);
   }
 
   function openSheet(sheet){
@@ -401,22 +372,6 @@
   $('#filterBtn').addEventListener('click',()=>openSheet($('#filterSheet')));
   $('#applyFilters').addEventListener('click',closeSheets);
 
-  function renderMyList(){
-    const ids=state.showSharedPreview?[...state.shared]:[...state.saved];
-    const booths=ids.map(id=>byId.get(id)).filter(Boolean).sort((a,b)=>a.hall.localeCompare(b.hall)||a.id.localeCompare(b.id));
-    const groups=['WEST','EAST'].map(h=>({hall:h,items:booths.filter(b=>b.hall===h)})).filter(g=>g.items.length);
-    const sharedHead=state.showSharedPreview?`<div class="sharedNotice">SHARED LIST / ${booths.length} BOOTHS<br>This list is a preview. Your existing MY LIST has not been replaced.</div><button class="button button--dark" type="button" id="addShared">ADD ALL TO MY LIST</button>`:'';
-    const groupHtml=groups.map(g=>`<div class="listGroup"><div class="listGroup__title"><span>${g.hall} HALL</span><span>${g.items.length}</span></div>${g.items.map(b=>`<div class="savedRow"><span class="savedRow__id">${b.id}</span><span><strong>${esc(b.brand)}</strong><small>${esc(b.company)}</small></span><button type="button" data-list-map="${b.id}">SHOW ON MAP</button></div>`).join('')}</div>`).join('');
-    $('#listSheetContent').innerHTML=`<div class="listTop"><div><p class="eyebrow">${state.showSharedPreview?'SHARED LIST':'MY LIST'}</p><h2>${state.showSharedPreview?'Shared<br>booths.':'Plan your<br>visit.'}</h2><p>${booths.length} SAVED BOOTH${booths.length===1?'':'S'}</p></div>${!state.showSharedPreview&&booths.length?'<button class="button" type="button" id="shareMyList">SHARE MY LIST ↗</button>':''}</div>${sharedHead}${groupHtml||'<div class="emptyState">まだ保存したブースはありません。<br>気になるブースの ♡ SAVE を押してください。</div>'}`;
-    $$('[data-list-map]', $('#listSheetContent')).forEach(btn=>btn.addEventListener('click',()=>{closeSheets();selectBooth(btn.dataset.listMap,true)}));
-    $('#shareMyList')?.addEventListener('click',()=>shareList());
-    $('#addShared')?.addEventListener('click',()=>{
-      state.shared.forEach(id=>state.saved.add(id));state.showSharedPreview=false;saveState();renderMyList();
-    });
-  }
-
-  $$('[data-open-mylist]').forEach(btn=>btn.addEventListener('click',()=>{state.showSharedPreview=false;renderMyList();openSheet($('#listSheet'))}));
-
   function baseUrl(){
     const u=new URL(location.href);u.search='';u.hash='';return u;
   }
@@ -425,12 +380,6 @@
     const b=byId.get(id);
     openShare(`${b.id} / ${b.brand}`,u.toString());
   }
-  function shareList(){
-    const ids=[...state.saved].sort(); if(!ids.length)return;
-    const u=baseUrl();u.searchParams.set('list',ids.join(','));
-    openShare('MY LIST',u.toString());
-  }
-
   function openShare(title,url){
     $('#shareSheetContent').innerHTML=`<p class="eyebrow">SHARE</p><h2>${esc(title)}</h2><div class="shareUrl"><input id="shareUrlField" readonly value="${esc(url)}"><button class="button button--dark" id="copyShare">COPY</button></div><div class="qrWrap" id="qrWrap"><span style="font-size:10px;color:#888">GENERATING QR…</span></div><button class="button" style="width:100%" id="nativeShare">SHARE ↗</button>`;
     $('#copyShare').addEventListener('click',async e=>{try{await navigator.clipboard.writeText(url);e.currentTarget.textContent='COPIED';}catch(_){$('#shareUrlField').select();document.execCommand('copy');}});
@@ -492,14 +441,20 @@
     const cx=data.bounds.x+data.bounds.w/2, cy=data.bounds.y+data.bounds.h/2;
     const floor=new T.Mesh(new T.PlaneGeometry(data.bounds.w+80,data.bounds.h+80),new T.MeshStandardMaterial({color:0xe8e8e2,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.8;floor.receiveShadow=true;scene.add(floor);
     const meshes=new Map(),labels=new Map();
+    const boothHeight=34; // standard 2m x 2m booth footprint maps to 34 x 34 units, so 34 units = 2m height
     data.booths.forEach(b=>{
-      const geo=new T.BoxGeometry(Math.max(b.w,4),12,Math.max(b.h,4));
+      const geo=new T.BoxGeometry(Math.max(b.w,4),boothHeight,Math.max(b.h,4));
       const mat=new T.MeshStandardMaterial({color:0xfbfbf8,roughness:.9,metalness:0});
-      const mesh=new T.Mesh(geo,mat);mesh.position.set(b.x+b.w/2-cx,6,b.y+b.h/2-cy);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.boothId=b.id;scene.add(mesh);meshes.set(b.id,mesh);
-      const label=labelSprite(`${b.id}\n${b.brand.length>14?b.brand.slice(0,13)+'…':b.brand}`);label.position.set(mesh.position.x,16.5,mesh.position.z);scene.add(label);labels.set(b.id,label);
+      const mesh=new T.Mesh(geo,mat);mesh.position.set(b.x+b.w/2-cx,boothHeight/2,b.y+b.h/2-cy);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.boothId=b.id;scene.add(mesh);meshes.set(b.id,mesh);
+      const label=labelSprite(`${b.id}\n${b.brand.length>14?b.brand.slice(0,13)+'…':b.brand}`);label.position.set(mesh.position.x,boothHeight+7,mesh.position.z);scene.add(label);labels.set(b.id,label);
     });
     const raycaster=new T.Raycaster(),pointer=new T.Vector2();
+    let pickStart=null;
+    renderer.domElement.addEventListener('pointerdown',e=>{pickStart={x:e.clientX,y:e.clientY}});
     renderer.domElement.addEventListener('pointerup',e=>{
+      if(!pickStart)return;
+      const moved=Math.hypot(e.clientX-pickStart.x,e.clientY-pickStart.y);pickStart=null;
+      if(moved>8)return;
       const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);
       const hit=raycaster.intersectObjects([...meshes.values()],false)[0];if(hit?.object?.userData?.boothId)selectBooth(hit.object.userData.boothId,true);
     });
@@ -519,8 +474,8 @@
     state.three.meshes.forEach((mesh,id)=>{
       const b=byId.get(id),selected=state.selected===id,visible=matches(b);
       mesh.material.color.setHex(selected?0x11110f:0xfbfbf8);
-      mesh.material.transparent=!visible;mesh.material.opacity=visible?1:.12;
-      const label=state.three.labels.get(id);if(label){label.material.opacity=visible?1:.12;label.material.color.setHex(selected?0xffffff:0x11110f);}
+      mesh.material.transparent=false;mesh.material.opacity=1;
+      const label=state.three.labels.get(id);if(label){label.material.opacity=visible?1:.2;label.material.color.setHex(selected?0xffffff:0x11110f);}
     });
   }
 
@@ -538,10 +493,8 @@
 
   function parseUrl(){
     const u=new URL(location.href);
-    const shared=(u.searchParams.get('list')||'').split(',').map(s=>s.trim()).filter(id=>byId.has(id));
-    if(shared.length){shared.forEach(id=>state.shared.add(id));state.showSharedPreview=true;updateSavedUI();update2DState();setTimeout(()=>{renderMyList();openSheet($('#listSheet'))},120)}
     const booth=u.searchParams.get('booth');if(booth&&byId.has(booth))setTimeout(()=>selectBooth(booth,true),80);
   }
 
-  renderCategories();render2D();renderResults();syncHallButtons();syncCategoryButtons();updateSavedUI();parseUrl();
+  renderCategories();render2D();renderResults();syncHallButtons();syncCategoryButtons();parseUrl();
 })();
